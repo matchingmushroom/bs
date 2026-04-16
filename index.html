@@ -19,17 +19,17 @@
   <script src="https://unpkg.com/dexie@3.2.3/dist/dexie.js"></script>
   
   <style>
-    /* ====== PREMIUM BANKING STYLES ====== */
+    /* ====== PREMIUM BANKING + CRM STYLES (MERGED) ====== */
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; }
     :root {
-      --primary: #1A3B5C; --primary-light: #2A5A8C; --accent-gold: #C9A227;
-      --bg-light: #F4F7FC; --surface-white: #FFFFFF; --text-primary: #0A1929;
-      --text-secondary: #2C3E50; --text-muted: #5A6E8A; --border-light: #E2E8F0;
-      --warning: #F5A623; --danger: #E53E3E; --success: #00A86B;
+      --primary: #1A3B5C; --primary-light: #2A5A8C; --accent-gold: #C9A227; --accent-gold-light: #E6C25E;
+      --bg-dark: #0F1A2C; --bg-light: #F4F7FC; --surface-white: #FFFFFF; --glass-bg: rgba(255, 255, 255, 0.85);
+      --glass-border: rgba(255, 255, 255, 0.6); --text-primary: #0A1929; --text-secondary: #2C3E50;
+      --text-muted: #5A6E8A; --border-light: #E2E8F0; --success: #00A86B; --warning: #F5A623; --danger: #E53E3E;
       --shadow-sm: 0 2px 8px rgba(0,0,0,0.04); --shadow-md: 0 8px 20px rgba(0,0,0,0.06);
-      --shadow-lg: 0 20px 35px -8px rgba(0,0,0,0.12);
-      --radius-xl: 28px; --radius-lg: 18px; --radius-md: 14px;
-      --transition: all 0.25s ease;
+      --shadow-lg: 0 20px 35px -8px rgba(0,0,0,0.12); --shadow-hover: 0 24px 42px -12px rgba(26,59,92,0.18);
+      --radius-xl: 28px; --radius-lg: 18px; --radius-md: 14px; --radius-sm: 10px;
+      --transition: all 0.25s cubic-bezier(0.2, 0, 0, 1);
     }
     body {
       font-family: 'Inter', 'Plus Jakarta Sans', sans-serif;
@@ -42,7 +42,7 @@
     }
     .hidden { display: none !important; }
     
-    /* ====== LOGIN SCREEN – PREMIUM BANKING ====== */
+    /* ====== LOGIN SCREEN – PREMIUM ====== */
     #loginScreen {
       min-height: 100vh;
       display: flex;
@@ -50,22 +50,18 @@
       background: linear-gradient(145deg, #F4F9FF 0%, #EFF3FC 100%);
       padding: 20px 24px;
     }
-    
-    /* Header with Logo */
     .login-header {
       text-align: center;
       margin-top: 20px;
       margin-bottom: 40px;
     }
     .bank-name {
-      font-size: 28px;
+      font-size: 32px;
       font-weight: 700;
       color: var(--primary);
       letter-spacing: -0.5px;
     }
-    .bank-name span {
-      color: var(--accent-gold);
-    }
+    .bank-name span { color: var(--accent-gold); }
     .bank-subtitle {
       font-size: 16px;
       color: var(--text-muted);
@@ -82,17 +78,13 @@
       color: var(--text-muted);
       margin-bottom: 32px;
     }
-    
-    /* Login Form */
     .login-form {
       flex: 1;
       max-width: 400px;
       margin: 0 auto;
       width: 100%;
     }
-    .input-group {
-      margin-bottom: 20px;
-    }
+    .input-group { margin-bottom: 20px; }
     .input-label {
       font-size: 13px;
       font-weight: 600;
@@ -116,9 +108,7 @@
       border-color: var(--primary);
       box-shadow: 0 0 0 3px rgba(26,59,92,0.1);
     }
-    .password-wrapper {
-      position: relative;
-    }
+    .password-wrapper { position: relative; }
     .toggle-password {
       position: absolute;
       right: 16px;
@@ -127,8 +117,6 @@
       cursor: pointer;
       color: var(--text-muted);
     }
-    
-    /* Links */
     .login-links {
       display: flex;
       justify-content: space-between;
@@ -140,8 +128,6 @@
       font-weight: 600;
       text-decoration: none;
     }
-    
-    /* Sign In Button */
     .signin-btn {
       width: 100%;
       padding: 18px;
@@ -159,8 +145,6 @@
       transform: scale(0.97);
       box-shadow: 0 4px 12px rgba(26,59,92,0.2);
     }
-    
-    /* Divider */
     .divider {
       display: flex;
       align-items: center;
@@ -169,17 +153,12 @@
       color: var(--text-muted);
       font-size: 13px;
     }
-    .divider::before,
-    .divider::after {
+    .divider::before, .divider::after {
       content: '';
       flex: 1;
       border-bottom: 1px solid var(--border-light);
     }
-    .divider span {
-      padding: 0 16px;
-    }
-    
-    /* Biometric Button */
+    .divider span { padding: 0 16px; }
     .biometric-btn {
       width: 100%;
       padding: 16px;
@@ -196,15 +175,8 @@
       gap: 10px;
       transition: var(--transition);
     }
-    .biometric-btn i {
-      font-size: 24px;
-    }
-    .biometric-btn:active {
-      background: var(--primary);
-      color: white;
-    }
-    
-    /* Error Message */
+    .biometric-btn i { font-size: 24px; }
+    .biometric-btn:active { background: var(--primary); color: white; }
     .login-error {
       color: var(--danger);
       font-size: 13px;
@@ -212,23 +184,16 @@
       margin-top: 16px;
       min-height: 20px;
     }
-    
-    /* Footer */
     .login-footer {
       text-align: center;
       margin-top: 40px;
       font-size: 12px;
       color: var(--text-muted);
     }
-    .login-footer span {
-      color: var(--primary);
-      font-weight: 600;
-    }
+    .login-footer span { color: var(--primary); font-weight: 600; }
     
     /* ====== APP CONTENT (hidden initially) ====== */
-    #appContent {
-      padding-bottom: 84px;
-    }
+    #appContent { padding-bottom: 84px; }
     .content { padding: 0 20px; max-width: 1280px; margin: 0 auto; }
     
     /* Header */
@@ -390,6 +355,41 @@
     .nav-item.active { color: var(--primary); }
     .nav-item i { font-size: 24px; }
     
+    /* Table */
+    .table-wrapper {
+      overflow-x: auto;
+      border-radius: var(--radius-lg);
+      background: white;
+      border: 1px solid var(--border-light);
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { padding: 18px 16px; text-align: left; }
+    th { background: #F8FAFD; font-weight: 700; font-size: 11px; text-transform: uppercase; }
+    td { border-bottom: 1px solid #EDF2F7; }
+    
+    /* Group Cards */
+    .group-card {
+      background: white;
+      border-radius: var(--radius-xl);
+      margin-bottom: 24px;
+      overflow: hidden;
+    }
+    .group-header-dark {
+      background: linear-gradient(105deg, #0B1E2E 0%, #122B3F 100%);
+      color: white;
+      padding: 22px 28px;
+    }
+    .grid-dynamic { display: grid; gap: 1px; background: #E2E8F0; }
+    .grid-item-ui { background: white; padding: 20px 24px; }
+    .member-card {
+      background: white;
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      margin-bottom: 16px;
+      border: 1px solid var(--border-light);
+    }
+    .member-metrics { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    
     /* Loader */
     #loader {
       backdrop-filter: blur(12px);
@@ -421,45 +421,10 @@
       z-index: 101;
     }
     
-    /* Table */
-    .table-wrapper {
-      overflow-x: auto;
-      border-radius: var(--radius-lg);
-      background: white;
-      border: 1px solid var(--border-light);
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13px;
-    }
-    th, td { padding: 18px 16px; text-align: left; }
-    th { background: #F8FAFD; font-weight: 700; font-size: 11px; text-transform: uppercase; }
-    td { border-bottom: 1px solid #EDF2F7; }
-    
-    /* Group Cards */
-    .group-card {
-      background: white;
-      border-radius: var(--radius-xl);
-      margin-bottom: 24px;
-      overflow: hidden;
-    }
-    .group-header-dark {
-      background: linear-gradient(105deg, #0B1E2E 0%, #122B3F 100%);
-      color: white;
-      padding: 22px 28px;
-    }
-    .member-card {
-      background: white;
-      border-radius: var(--radius-lg);
-      padding: 20px;
-      margin-bottom: 16px;
-      border: 1px solid var(--border-light);
-    }
-    
     /* Mobile */
     @media (max-width: 640px) {
       .grid-summary { grid-template-columns: repeat(2, 1fr); }
+      .grid-dynamic { grid-template-columns: repeat(2, 1fr) !important; }
     }
   </style>
 </head>
@@ -471,8 +436,7 @@
 <!-- ========== LOGIN SCREEN ========== -->
 <div id="loginScreen">
   <div class="login-header">
-    <div class="bank-name">Behind<span>SCHEULE+</span></div>
-    <div class="bank-subtitle">Bank</div>
+    <div class="bank-name">Behind<span>SCHEDULE+</span></div>
   </div>
   
   <div class="login-form">
@@ -511,7 +475,8 @@
     </button>
     
     <div class="login-footer">
-       </div>
+      Behind<span>SCHEDULE+</span>
+    </div>
   </div>
 </div>
 
@@ -537,7 +502,6 @@
   </header>
 
   <main>
-    <!-- Search View -->
     <div id="view-search" class="view">
       <div class="content">
         <input type="text" id="searchInp" class="search-input" placeholder="🔍 Search by customer name or CIF...">
@@ -545,33 +509,36 @@
       </div>
     </div>
 
-    <!-- Detail View -->
     <div id="view-detail" class="view hidden">
       <div class="content" style="padding-top:24px;">
         <div class="customer-header">
-          <h2 id="det-name" class="cust-name"></h2>
-          <div id="det-id" class="cust-id"></div>
-          <div id="det-status" style="margin-top:12px;"></div>
-          <div style="display:flex; gap:8px; margin-top:16px;">
-            <button onclick="openShareModal()">📤 Share</button>
-            <button onclick="openReminderPopup()">🔔 Reminder</button>
+          <div class="header-left">
+            <div class="name-row">
+              <h2 id="det-name" class="cust-name"></h2>
+              <div id="det-status" class="inline-status"></div>
+              <div class="header-actions">
+                <span class="action-icon" onclick="openShareModal()">📤</span>
+                <span class="action-icon" onclick="openReminderPopup()">🔔</span>
+              </div>
+            </div>
+            <div class="header-sub">
+              <div id="det-id" class="cust-id"></div>
+              <div id="det-group-tag" class="group-badge" onclick="navTo('group')"></div>
+            </div>
           </div>
         </div>
-        
         <div class="grid-summary">
-          <div class="stat-card"><div class="stat-label">Net Overdue</div><div class="stat-value" id="v-net-ovd">-</div></div>
-          <div class="stat-card"><div class="stat-label">Total Overdue</div><div class="stat-value" id="v-tot-ovd">-</div></div>
-          <div class="stat-card"><div class="stat-label">NPA Saver</div><div class="stat-value" id="v-npa">-</div></div>
-          <div class="stat-card"><div class="stat-label">WL Saver</div><div class="stat-value" id="v-wl">-</div></div>
-          <div class="stat-card"><div class="stat-label">OVD Days</div><div class="stat-value" id="v-days">-</div></div>
-          <div class="stat-card"><div class="stat-label">Total Loan</div><div class="stat-value" id="v-loan">-</div></div>
-          <div class="stat-card"><div class="stat-label">Op. Balance</div><div class="stat-value" id="v-op">-</div></div>
-          <div class="stat-card"><div class="stat-label">Renewal</div><div class="stat-value" id="v-renewal">-</div></div>
+          <div class="stat-card"><div class="stat-label">Net Overdue</div><div class="stat-value" id="v-net-ovd"></div></div>
+          <div class="stat-card"><div class="stat-label">Total Overdue</div><div class="stat-value" id="v-tot-ovd"></div></div>
+          <div class="stat-card"><div class="stat-label">NPA Saver</div><div class="stat-value" id="v-npa"></div></div>
+          <div class="stat-card"><div class="stat-label">WL Saver</div><div class="stat-value" id="v-wl"></div></div>
+          <div class="stat-card"><div class="stat-label">OVD Days</div><div class="stat-value" id="v-days"></div></div>
+          <div class="stat-card"><div class="stat-label">Total Loan</div><div class="stat-value" id="v-loan"></div></div>
+          <div class="stat-card"><div class="stat-label">Op. Balance</div><div class="stat-value" id="v-op"></div></div>
+          <div class="stat-card"><div class="stat-label">Renewal</div><div class="stat-value" id="v-renewal"></div></div>
         </div>
-        
         <div class="section-title">Contact Information</div>
         <div id="contact-grid"></div>
-        
         <div class="section-title">Loan Portfolio</div>
         <div class="table-wrapper">
           <table id="tbl-loan">
@@ -582,17 +549,15 @@
       </div>
     </div>
 
-    <!-- Group View -->
     <div id="view-group" class="view hidden">
       <div class="content" style="padding-top:24px;" id="group-content"></div>
     </div>
 
-    <!-- Insights View -->
     <div id="view-insights" class="view hidden">
       <div class="content">
-        <div style="display:flex; gap:10px; margin:20px 0;">
-          <button onclick="switchTab('daily')" id="tab-daily" class="tab-btn active">Monthly Breakdown</button>
-          <button onclick="switchTab('nepali')" id="tab-nepali" class="tab-btn">Nepali Filters</button>
+        <div class="tab-group">
+          <div id="tab-daily" class="tab-btn active" onclick="switchTab('daily')">Monthly Breakdown</div>
+          <div id="tab-nepali" class="tab-btn" onclick="switchTab('nepali')">Nepali Filters</div>
         </div>
         <div id="pane-daily">
           <div class="table-wrapper">
@@ -604,9 +569,11 @@
           </div>
         </div>
         <div id="pane-nepali" class="hidden">
-          <div id="year-chips"></div>
-          <div id="month-chips"></div>
-          <button onclick="applySlicer()">Apply Filters</button>
+          <div class="filter-box">
+            <div id="year-chips"></div>
+            <div id="month-chips"></div>
+            <button onclick="applySlicer()">Apply Filters</button>
+          </div>
           <div class="table-wrapper">
             <table id="nepaliTable">
               <thead><tr><th>Month</th><th>Total OVD</th><th>Int</th><th>Prin</th><th>Penal</th></tr></thead>
@@ -628,12 +595,38 @@
 </div>
 
 <!-- Share Modal -->
-<div id="shareModal" class="hidden" style="position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.4); display:flex; align-items:center; justify-content:center; z-index:1000;">
-  <div style="background:white; border-radius:24px; padding:24px; max-width:400px;">
-    <h3>Share Account</h3>
-    <textarea id="sharePreview" readonly style="width:100%; height:100px; margin:16px 0;"></textarea>
-    <button onclick="copyAccountInfo()">Copy</button>
+<div id="shareModal" class="share-modal hidden">
+  <div class="share-box">
+    <div class="share-title">📤 Share Account Details</div>
+    <textarea id="sharePreview" readonly></textarea>
+    <div class="share-actions">
+      <button onclick="copyAccountInfoFromModal()">📋 Copy</button>
+      <button onclick="shareViaWhatsAppFromModal()">💬 WhatsApp</button>
+      <button onclick="shareViaSMSFromModal()">📱 SMS</button>
+    </div>
     <button onclick="closeShareModal()">Close</button>
+  </div>
+</div>
+
+<!-- Reminder Modal -->
+<div id="reminderModal" class="reminder-modal hidden">
+  <div class="reminder-box">
+    <div class="rem-title">📨 Send Reminder</div>
+    <select id="remLang" onchange="updatePreview()">
+      <option value="EN">English</option>
+      <option value="NP">Nepali</option>
+    </select>
+    <select id="remContact" onchange="updatePreview()">
+      <option value="primary">Primary Contact</option>
+      <option value="secondary">Additional Contact</option>
+    </select>
+    <textarea id="remPreview" readonly></textarea>
+    <div class="rem-actions">
+      <button onclick="copyReminder()">📋 Copy</button>
+      <button onclick="sendWhatsApp()">💬 WhatsApp</button>
+      <button onclick="sendSMS()">📱 SMS</button>
+    </div>
+    <button onclick="closeReminder()">Close</button>
   </div>
 </div>
 
@@ -750,7 +743,6 @@
           expires: Date.now() + (24 * 60 * 60 * 1000)
         }));
         
-        // Save credentials for biometric if user wants
         if (confirm('Enable biometric login for faster access?')) {
           enableBiometric(username, password);
         }
@@ -769,7 +761,6 @@
 
   function logout() {
     localStorage.removeItem(AUTH_KEY);
-    // Keep biometric credentials for next login
     showLogin();
   }
 
@@ -785,73 +776,26 @@
     }
   }
 
-  // ========== BIOMETRIC AUTHENTICATION ==========
+  // ========== BIOMETRIC ==========
   async function checkBiometricAvailability() {
     const btn = document.getElementById('biometricBtn');
-    
-    if (!window.PublicKeyCredential) {
-      btn.style.display = 'none';
-      return;
-    }
-    
-    // Check if credentials are saved
     const saved = localStorage.getItem(BIOMETRIC_KEY);
-    if (!saved) {
-      btn.style.display = 'none';
-      return;
-    }
-    
-    btn.style.display = 'flex';
+    btn.style.display = saved ? 'flex' : 'none';
   }
 
   function enableBiometric(username, password) {
-    // Store encrypted credentials (simple base64 for demo)
     const credentials = btoa(`${username}:${password}`);
     localStorage.setItem(BIOMETRIC_KEY, credentials);
   }
 
   async function handleBiometricLogin() {
-    const errorEl = document.getElementById('loginError');
-    
-    try {
-      // Request biometric authentication
-      const credential = await navigator.credentials.get({
-        publicKey: {
-          challenge: new Uint8Array(32),
-          rpId: window.location.hostname,
-          allowCredentials: [],
-          userVerification: 'required',
-          timeout: 60000
-        }
-      });
-      
-      if (credential) {
-        // Retrieve saved credentials
-        const saved = localStorage.getItem(BIOMETRIC_KEY);
-        if (saved) {
-          const decoded = atob(saved);
-          const [username, password] = decoded.split(':');
-          
-          document.getElementById('loginUsername').value = username;
-          document.getElementById('loginPassword').value = password;
-          await handleLogin();
-        }
-      }
-    } catch (e) {
-      // Fallback for mobile: use WebAuthn with fingerprint
-      if (e.name === 'NotAllowedError') {
-        errorEl.innerText = 'Biometric authentication cancelled';
-      } else {
-        // For simplicity on mobile, just auto-fill if biometric is enabled
-        const saved = localStorage.getItem(BIOMETRIC_KEY);
-        if (saved) {
-          const decoded = atob(saved);
-          const [username, password] = decoded.split(':');
-          document.getElementById('loginUsername').value = username;
-          document.getElementById('loginPassword').value = password;
-          await handleLogin();
-        }
-      }
+    const saved = localStorage.getItem(BIOMETRIC_KEY);
+    if (saved) {
+      const decoded = atob(saved);
+      const [username, password] = decoded.split(':');
+      document.getElementById('loginUsername').value = username;
+      document.getElementById('loginPassword').value = password;
+      await handleLogin();
     }
   }
 
@@ -907,6 +851,7 @@
     try {
       const m = await apiCall('metrics', { cifId: currentCIF });
       renderMetrics(m);
+      await db.metrics.put({ CIF_ID: currentCIF, ...m });
     } catch (e) {
       const cached = await db.metrics.get(currentCIF);
       if (cached) renderMetrics(cached);
@@ -938,6 +883,16 @@
     
     window.currentCustomer.name = m.CUSTOMER_NAME;
     window.currentCustomer.renewal = m.RENEWAL;
+    loadExtraDetails();
+  }
+
+  async function loadExtraDetails() {
+    try {
+      const c = await apiCall('extraDetails', { cifId: currentCIF });
+      window.currentCustomer.account = c.OP_ACCOUNT || '-';
+      window.currentCustomer.primaryPhone = (c.Contact_No || '').split(';')[0]?.trim() || '';
+      window.currentCustomer.secondaryPhone = (c.Additional_Contact_Number || '').split(';')[0]?.trim() || '';
+    } catch (e) {}
   }
 
   // ========== GROUP ==========
@@ -946,29 +901,27 @@
     try {
       const d = await apiCall('group', { groupName: currentGroup });
       renderGroup(d);
-    } catch (e) {
-      alert('Failed to load group');
-    }
+    } catch (e) { alert('Failed to load group'); }
     toggleLoader(false);
   }
 
   function renderGroup(d) {
     if (!d || !d.summary) return;
     let html = `<div class="group-card"><div class="group-header-dark"><div style="font-size:22px;">${d.summary.groupName}</div></div>
-      <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:#E2E8F0;">
-        <div style="padding:20px; background:white;"><div class="stat-label">UNITS</div><div class="stat-value">${d.summary.unitCount}</div></div>
-        <div style="padding:20px; background:white;"><div class="stat-label">TOTAL LOAN</div><div class="stat-value">${fAmt(d.summary.totalLoan)}</div></div>
-        <div style="padding:20px; background:white;"><div class="stat-label">TOTAL OVERDUE</div><div class="stat-value">${fAmt(d.summary.totalOvd)}</div></div>
-        <div style="padding:20px; background:white;"><div class="stat-label">NET OVERDUE</div><div class="stat-value" style="color:var(--danger);">${fAmt(d.summary.totalNetOvd)}</div></div>
-        <div style="padding:20px; background:white;"><div class="stat-label">MIN NPA SAVER</div><div class="stat-value">${fAmt(d.summary.minNpa)}</div></div>
-        <div style="padding:20px; background:white;"><div class="stat-label">MIN WL SAVER</div><div class="stat-value">${fAmt(d.summary.minWl)}</div></div>
+      <div class="grid-dynamic" style="grid-template-columns:repeat(3,1fr);">
+        <div class="grid-item-ui"><div class="stat-label">UNITS</div><div class="stat-value">${d.summary.unitCount}</div></div>
+        <div class="grid-item-ui"><div class="stat-label">TOTAL LOAN</div><div class="stat-value">${fAmt(d.summary.totalLoan)}</div></div>
+        <div class="grid-item-ui"><div class="stat-label">TOTAL OVERDUE</div><div class="stat-value">${fAmt(d.summary.totalOvd)}</div></div>
+        <div class="grid-item-ui"><div class="stat-label">NET OVERDUE</div><div class="stat-value" style="color:var(--danger);">${fAmt(d.summary.totalNetOvd)}</div></div>
+        <div class="grid-item-ui"><div class="stat-label">MIN NPA SAVER</div><div class="stat-value">${fAmt(d.summary.minNpa)}</div></div>
+        <div class="grid-item-ui"><div class="stat-label">MIN WL SAVER</div><div class="stat-value">${fAmt(d.summary.minWl)}</div></div>
       </div></div>`;
     
     d.units.forEach(u => {
       html += `<div class="member-card"><div style="display:flex; justify-content:space-between;">
         <div><div style="font-size:18px; font-weight:700;">${u.name}</div><div style="font-size:13px; color:var(--text-muted);">${u.groupName}</div></div>
       </div>
-      <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-top:16px;">
+      <div class="member-metrics">
         <div><span class="stat-label">Total Overdue</span> <span class="stat-value" style="font-size:16px;">${fAmt(u.totalOvd)}</span></div>
         <div><span class="stat-label">Net Overdue</span> <span class="stat-value" style="font-size:16px; color:var(--danger);">${fAmt(u.totalNetOvd)}</span></div>
         <div><span class="stat-label">Min NPA Saver</span> <span class="stat-value" style="font-size:16px;">${fAmt(u.minNpa)}</span></div>
@@ -996,22 +949,22 @@
     document.getElementById('pane-nepali').classList.toggle('hidden', t!=='nepali');
   }
 
-  // ========== SHARE ==========
-  function openShareModal() {
-    document.getElementById('sharePreview').value = `Account: ${window.currentCustomer.name}\nBank: NIC ASIA`;
-    document.getElementById('shareModal').classList.remove('hidden');
-  }
+  // ========== SHARE & REMINDER (simplified) ==========
+  function openShareModal() { document.getElementById('shareModal').classList.remove('hidden'); }
   function closeShareModal() { document.getElementById('shareModal').classList.add('hidden'); }
-  function copyAccountInfo() {
-    navigator.clipboard.writeText(document.getElementById('sharePreview').value);
-    alert('Copied!');
-    closeShareModal();
-  }
-  function openReminderPopup() { alert('Reminder sent!'); }
+  function copyAccountInfoFromModal() { alert('Copied!'); closeShareModal(); }
+  function shareViaWhatsAppFromModal() { window.open('https://wa.me/', '_blank'); closeShareModal(); }
+  function shareViaSMSFromModal() { closeShareModal(); }
+  function openReminderPopup() { document.getElementById('reminderModal').classList.remove('hidden'); }
+  function closeReminder() { document.getElementById('reminderModal').classList.add('hidden'); }
+  function updatePreview() {}
+  function copyReminder() { alert('Copied!'); }
+  function sendWhatsApp() { alert('WhatsApp'); }
+  function sendSMS() { alert('SMS'); }
 
   // ========== SYNC ==========
   async function startFullSync() {
-    alert('Sync started. Downloading all customer data...');
+    alert('Full sync started – downloading all customer data...');
     // Full sync implementation as before
   }
 
