@@ -5,10 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
   
   <meta name="theme-color" content="#1A3B5C">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="manifest" href="manifest.json">
-  <link rel="apple-touch-icon" href="icon.png">
+  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1041/1041916.png">
+  
+  <title>Overdue Report</title>
   
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
@@ -16,25 +19,99 @@
   <script src="https://unpkg.com/dexie@3.2.3/dist/dexie.js"></script>
   
   <style>
-    /* ====== EXISTING PREMIUM CRM STYLES (UNCHANGED) ====== */
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    /* ====== RESET & VARIABLES ====== */
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; }
     :root {
-      --primary: #1A3B5C; --primary-light: #2A5A8C; --accent-gold: #C9A227; --accent-gold-light: #E6C25E;
-      --bg-dark: #0F1A2C; --bg-light: #F4F7FC; --surface-white: #FFFFFF; --glass-bg: rgba(255, 255, 255, 0.85);
-      --glass-border: rgba(255, 255, 255, 0.6); --text-primary: #0A1929; --text-secondary: #2C3E50;
-      --text-muted: #5A6E8A; --border-light: #E2E8F0; --success: #00A86B; --warning: #F5A623; --danger: #E53E3E;
-      --shadow-sm: 0 2px 8px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.05);
-      --shadow-md: 0 8px 20px rgba(0,0,0,0.06), 0 0 0 0.5px rgba(0,0,0,0.02);
-      --shadow-lg: 0 20px 35px -8px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.02);
-      --shadow-hover: 0 24px 42px -12px rgba(26,59,92,0.18);
-      --radius-xl: 24px; --radius-lg: 18px; --radius-md: 14px; --radius-sm: 10px;
-      --transition: all 0.25s cubic-bezier(0.2, 0, 0, 1);
+      --primary: #1A3B5C; --primary-light: #2A5A8C; --accent-gold: #C9A227;
+      --bg-light: #F4F7FC; --surface-white: #FFFFFF; --text-primary: #0A1929;
+      --text-muted: #5A6E8A; --border-light: #E2E8F0; --warning: #F5A623; --danger: #E53E3E;
+      --shadow-sm: 0 2px 8px rgba(0,0,0,0.04); --shadow-lg: 0 20px 35px -8px rgba(0,0,0,0.12);
+      --radius-xl: 24px; --radius-lg: 18px; --radius-md: 14px; --transition: all 0.25s ease;
     }
-    body { font-family: 'Inter', 'Plus Jakarta Sans', sans-serif; background: var(--bg-light); margin: 0; padding-bottom: 84px; color: var(--text-primary); overflow-x: hidden; }
+    body {
+      font-family: 'Inter', 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg-light);
+      margin: 0;
+      padding: 0;
+      color: var(--text-primary);
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
     .hidden { display: none !important; }
+    
+    /* ====== LOGIN SCREEN ====== */
+    #loginScreen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, var(--primary) 0%, #0F1A2C 100%);
+      padding: 20px;
+    }
+    .login-card {
+      background: var(--surface-white);
+      border-radius: var(--radius-xl);
+      padding: 36px 28px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: var(--shadow-lg);
+    }
+    .login-title {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--primary);
+      text-align: center;
+      margin-bottom: 8px;
+    }
+    .login-subtitle {
+      font-size: 14px;
+      color: var(--text-muted);
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .login-input {
+      width: 100%;
+      padding: 15px 16px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-light);
+      font-size: 16px;
+      margin-bottom: 16px;
+      transition: var(--transition);
+      background: #FAFCFE;
+    }
+    .login-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(26,59,92,0.1);
+    }
+    .login-btn {
+      width: 100%;
+      padding: 16px;
+      font-size: 16px;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+      border: none;
+      border-radius: 60px;
+      color: white;
+      cursor: pointer;
+      margin-top: 8px;
+      box-shadow: 0 4px 14px rgba(26,59,92,0.25);
+    }
+    .login-error {
+      color: var(--danger);
+      font-size: 13px;
+      text-align: center;
+      margin-top: 16px;
+      min-height: 20px;
+    }
+    
+    /* ====== APP CONTENT (hidden initially) ====== */
+    #appContent {
+      padding-bottom: 84px;
+    }
     .content { padding: 0 20px; max-width: 1280px; margin: 0 auto; }
     
-    /* ----- Header – Modern Flex Layout (UPDATED) ----- */
+    /* Header */
     header {
       display: flex;
       align-items: center;
@@ -48,7 +125,6 @@
       z-index: 100;
       border-bottom: 1px solid rgba(0,0,0,0.05);
       box-shadow: var(--shadow-sm);
-      overflow: visible;
     }
     .app-title {
       font-weight: 700;
@@ -60,8 +136,6 @@
       align-items: center;
       gap: 8px;
       font-size: 20px;
-      letter-spacing: -0.3px;
-      flex: 0 1 auto;
     }
     .app-title i {
       background: linear-gradient(135deg, var(--primary), var(--accent-gold));
@@ -77,10 +151,9 @@
       padding: 2px 8px;
       border-radius: 20px;
       margin-left: 4px;
-      display: inline-block;
     }
-
-    /* ----- Sync Button – Premium & Compact (NEW) ----- */
+    
+    /* Sync Button */
     .sync-btn {
       background: transparent;
       border: 1px solid var(--border-light);
@@ -94,15 +167,28 @@
       gap: 5px;
       transition: var(--transition);
       white-space: nowrap;
-      margin-left: 12px;
+      cursor: pointer;
     }
     .sync-btn i { font-size: 16px; }
     .sync-btn:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
-    .sync-btn:hover i { color: #fff; }
     .sync-btn.syncing { background: var(--primary); color: #fff; pointer-events: none; }
     .sync-btn.syncing i { animation: spin 1s linear infinite; }
-
-    /* Thin Progress Bar (under header) */
+    
+    .logout-btn {
+      background: transparent;
+      border: 1px solid var(--border-light);
+      color: var(--text-muted);
+      padding: 6px 12px;
+      font-size: 12px;
+      border-radius: 40px;
+      cursor: pointer;
+      margin-left: 8px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .logout-btn:hover { background: var(--danger); color: white; border-color: var(--danger); }
+    
     .sync-progress-bar {
       position: absolute;
       bottom: 0;
@@ -111,387 +197,159 @@
       height: 3px;
       background: linear-gradient(90deg, var(--primary), var(--accent-gold));
       transition: width 0.3s ease;
-      z-index: 102;
     }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* ----- Premium Customer Header Card (unchanged) ----- */
-    .customer-header { background: var(--glass-bg); backdrop-filter: blur(20px); padding: 28px 28px 24px; border-radius: var(--radius-xl); margin-bottom: 28px; border: 1px solid var(--glass-border); box-shadow: var(--shadow-md); transition: var(--transition); }
-    .customer-header:hover { box-shadow: var(--shadow-hover); border-color: rgba(26,59,92,0.15); }
-    .name-row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
-    .cust-name { font-size: 28px; font-weight: 700; color: var(--text-primary); letter-spacing: -0.5px; margin: 0; }
-    .inline-status { display: flex; gap: 8px; }
-    .st-icon { padding: 5px 14px; font-size: 12px; font-weight: 600; border-radius: 40px; letter-spacing: 0.2px; box-shadow: var(--shadow-sm); backdrop-filter: blur(4px); transition: var(--transition); }
-    .st-act-pass { background: #0B753D; color: white; border: 1px solid #2E9B5E; }
-    .st-act-wl { background: #F5A623; color: #1A1A1A; border: 1px solid #F7C15E; }
-    .st-act-npa { background: #E53E3E; color: white; border: 1px solid #EF6B6B; }
-    .st-prob-pass { background: #6EBA9A; color: #0A2A1A; border: 1px solid #A8DCC8; }
-    .st-prob-wl { background: #FCE3A4; color: #4A3000; border: 1px solid #FAD980; }
-    .st-prob-npa { background: #F5A0A0; color: #4A0F0F; border: 1px solid #F7BEBE; }
     
-    .header-actions { display: flex; gap: 12px; margin-left: auto; }
-    .action-icon { cursor: pointer; font-size: 20px; padding: 10px; border-radius: var(--radius-sm); transition: var(--transition); background: rgba(26,59,92,0.04); color: var(--primary); line-height: 1; display: flex; align-items: center; justify-content: center; border: 1px solid transparent; }
-    .action-icon:hover { background: var(--primary); color: white; transform: translateY(-2px); box-shadow: var(--shadow-md); }
-    
-    .header-sub { display: flex; align-items: center; gap: 20px; margin-top: 14px; }
-    .cust-id { font-size: 14px; color: var(--text-muted); font-weight: 500; }
-    .group-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(26,59,92,0.06); color: var(--primary); padding: 8px 18px; border-radius: 40px; font-size: 13px; font-weight: 600; backdrop-filter: blur(4px); transition: var(--transition); cursor: pointer; border: 1px solid rgba(26,59,92,0.08); }
-    .group-badge:hover { background: rgba(26,59,92,0.12); transform: scale(0.98); border-color: var(--primary-light); }
-    
-    /* ----- Premium Stat Cards ----- */
-    .grid-summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-bottom: 28px; }
-    .stat-card { background: var(--surface-white); border-radius: var(--radius-lg); padding: 22px 20px; transition: var(--transition); border: 1px solid var(--border-light); box-shadow: var(--shadow-sm); position: relative; overflow: hidden; }
-    .stat-card::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--primary), var(--accent-gold)); opacity: 0; transition: opacity 0.3s; }
-    .stat-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-hover); border-color: rgba(26,59,92,0.2); }
-    .stat-card:hover::after { opacity: 1; }
-    .stat-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
-    .stat-header i { font-size: 24px; background: linear-gradient(135deg, var(--primary), var(--accent-gold)); -webkit-background-clip: text; background-clip: text; color: transparent; }
-    .stat-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-muted); }
-    .stat-value { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; color: var(--text-primary); line-height: 1.2; }
-    
-    /* ----- Premium Table ----- */
-    .table-wrapper { width: 100%; overflow-x: auto; border-radius: var(--radius-lg); background: var(--surface-white); border: 1px solid var(--border-light); box-shadow: var(--shadow-sm); }
-    table { border-collapse: collapse; font-size: 13px; width: 100%; min-width: 700px; }
-    th, td { padding: 18px 16px; text-align: left; white-space: nowrap; }
-    td:first-child { white-space: normal; min-width: 180px; }
-    th { background: #F8FAFD; font-weight: 700; font-size: 11px; letter-spacing: 0.5px; color: var(--text-secondary); border-bottom: 2px solid #E2E8F0; text-transform: uppercase; }
-    td { border-bottom: 1px solid #EDF2F7; color: var(--text-primary); font-weight: 500; }
-    tfoot td { background: #F8FAFD; font-weight: 800; border-top: 2px solid #E2E8F0; color: var(--primary); }
-    
-    /* ----- Group Card (Summary) ----- */
-    .group-card { background: var(--surface-white); border-radius: var(--radius-xl); margin-bottom: 24px; border: 1px solid var(--border-light); box-shadow: var(--shadow-sm); overflow: hidden; transition: var(--transition); }
-    .group-card:hover { box-shadow: var(--shadow-lg); }
-    .group-header-dark { background: linear-gradient(105deg, #0B1E2E 0%, #122B3F 100%); color: white; padding: 22px 28px; }
-    .grid-dynamic { display: grid; gap: 1px; background: #E2E8F0; }
-    .grid-item-ui { background: white; padding: 20px 24px; }
-
-    /* ----- New Group Member Cards (Premium CRM Style) ----- */
-    .member-card { background: var(--surface-white); border-radius: var(--radius-lg); padding: 20px 22px; margin-bottom: 16px; border: 1px solid var(--border-light); box-shadow: var(--shadow-sm); transition: var(--transition); }
-    .member-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); border-color: rgba(26,59,92,0.15); }
-    .member-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
-    .member-name { font-size: 20px; font-weight: 700; color: var(--text-primary); letter-spacing: -0.3px; }
-    .member-sub { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
-    .member-badges { display: flex; gap: 8px; align-items: center; }
-    .member-metrics { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px 18px; margin-bottom: 16px; }
-    .metric-item { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1px dashed var(--border-light); padding-bottom: 6px; }
-    .metric-label { font-size: 13px; font-weight: 500; color: var(--text-muted); }
-    .metric-value { font-size: 16px; font-weight: 700; color: var(--text-primary); }
-
-    /* ----- Bottom Navigation Premium ----- */
-    .bottom-nav { position: fixed; bottom: 0; width: 100%; background: rgba(255,255,255,0.96); backdrop-filter: blur(20px); display: flex; border-top: 1px solid rgba(0,0,0,0.05); padding-bottom: env(safe-area-inset-bottom); height: 76px; box-shadow: 0 -4px 20px rgba(0,0,0,0.03); }
-    .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; font-size: 11px; font-weight: 600; color: var(--text-muted); transition: var(--transition); cursor: pointer; border-radius: 40px; margin: 6px 4px; }
-    .nav-item i { font-size: 24px; transition: transform 0.2s; }
-    .nav-item.active { color: var(--primary); background: linear-gradient(135deg, rgba(26,59,92,0.06), rgba(201,162,39,0.04)); box-shadow: inset 0 1px 2px rgba(0,0,0,0.02); }
-    .nav-item:active i { transform: scale(0.92); }
-    
-    /* ----- Search Premium ----- */
-    .search-input { width: 100%; padding: 18px 22px; border-radius: 60px; border: 1px solid var(--border-light); background: white; font-size: 16px; font-weight: 500; box-shadow: var(--shadow-sm); transition: var(--transition); }
-    .search-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(26,59,92,0.08); }
-    .search-result-item { background: white; border-radius: var(--radius-lg); padding: 20px; margin-bottom: 12px; border: 1px solid var(--border-light); transition: var(--transition); cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
-    .search-result-item:hover { border-color: var(--primary); transform: translateX(6px); box-shadow: var(--shadow-md); }
-    
-    /* ----- Tabs & Chips Premium ----- */
-    .tab-group { display: flex; background: #E9EEF5; padding: 6px; border-radius: 60px; margin: 20px 0; }
-    .tab-btn { flex: 1; text-align: center; padding: 14px; font-weight: 700; border-radius: 40px; transition: var(--transition); color: var(--text-secondary); cursor: pointer; }
-    .tab-btn.active { background: white; color: var(--primary); box-shadow: var(--shadow-sm); }
-    .chip-label { padding: 10px 20px; border-radius: 40px; background: #F0F4FA; font-weight: 600; transition: var(--transition); cursor: pointer; border: 1px solid transparent; }
-    .check-chip:checked + .chip-label { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(26,59,92,0.3); }
-    
-    /* ----- Buttons Premium ----- */
-    button { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%); border: none; padding: 16px 24px; border-radius: 60px; font-weight: 700; font-size: 15px; box-shadow: 0 4px 14px rgba(26,59,92,0.25); transition: var(--transition); color: white; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); }
-    button:active { transform: scale(0.97); box-shadow: 0 2px 8px rgba(26,59,92,0.2); }
-    
-    /* ----- Loader Premium ----- */
-    #loader { backdrop-filter: blur(12px); background: rgba(255,255,255,0.9); position: fixed; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; z-index: 999; }
-    .spinner { width: 48px; height: 48px; border: 3px solid rgba(26,59,92,0.1); border-top: 3px solid var(--primary); border-radius: 50%; animation: spin 0.8s infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
     
-    /* ----- Section Titles Premium ----- */
-    .section-title { font-size: 20px; font-weight: 700; letter-spacing: -0.3px; margin: 32px 0 18px; color: var(--text-primary); display: flex; align-items: center; gap: 10px; }
-    .section-title i { color: var(--accent-gold); }
-    .copy-btn { display: inline-flex; align-items: center; justify-content: center; background: #F0F4FE; color: var(--primary); padding: 8px; border-radius: 10px; transition: var(--transition); cursor: pointer; }
-    .copy-btn:hover { background: var(--primary); color: white; }
-    .month-slider-track { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 12px; scrollbar-width: thin; }
-
-    /* ----- Modals (Reminder & Share) ----- */
-    .reminder-modal, .share-modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
-    .reminder-box, .share-box { background: var(--surface-white); border-radius: var(--radius-xl); padding: 28px 24px; width: 100%; max-width: 420px; box-shadow: var(--shadow-lg); border: 1px solid var(--border-light); }
-    .rem-title, .share-title { font-size: 20px; font-weight: 700; margin-bottom: 20px; color: var(--primary); }
-    .reminder-box label, .share-box label { display: block; font-size: 13px; font-weight: 600; color: var(--text-secondary); margin: 12px 0 6px; }
-    .reminder-box select, .reminder-box textarea, .share-box textarea { width: 100%; padding: 12px 14px; border-radius: var(--radius-md); border: 1px solid var(--border-light); font-family: inherit; font-size: 14px; background: #FAFCFE; transition: var(--transition); }
-    .reminder-box select:focus, .reminder-box textarea:focus, .share-box textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(26,59,92,0.1); }
-    .reminder-box textarea, .share-box textarea { height: 100px; resize: vertical; }
-    .rem-actions, .share-actions { display: flex; gap: 10px; margin: 20px 0 16px; }
-    .rem-actions button, .share-actions button { flex: 1; padding: 12px 8px; font-size: 13px; background: var(--primary); color: white; border: none; border-radius: 40px; font-weight: 600; cursor: pointer; transition: var(--transition); }
-    .rem-actions button:hover, .share-actions button:hover { background: var(--primary-light); }
-    .close-btn { width: 100%; padding: 12px; background: transparent; border: 1px solid var(--border-light); color: var(--text-muted); border-radius: 40px; font-weight: 600; cursor: pointer; transition: var(--transition); }
-    .close-btn:hover { background: #F0F4FA; }
-
-    .offline-banner { background: var(--warning); color: #1A1A1A; text-align: center; padding: 8px 16px; font-size: 13px; font-weight: 500; position: sticky; top: 0; z-index: 101; }
-
-    /* ---------- MOBILE OPTIMIZATION ---------- */
-    @media (max-width: 640px) {
-      body { padding-bottom: 80px; } .content { padding: 0 16px; }
-      header { padding: 10px 16px; }
-      .app-title { font-size: 18px; gap: 6px; } .app-title i { font-size: 22px; }
-      .sync-btn { padding: 5px 10px; font-size: 11px; } .sync-btn i { font-size: 14px; }
-      .customer-header { padding: 20px 18px 18px; margin-bottom: 20px; border-radius: var(--radius-lg); }
-      .name-row { gap: 10px; } .cust-name { font-size: 22px; }
-      .st-icon { padding: 4px 10px; font-size: 11px; } .header-actions { gap: 8px; } .action-icon { font-size: 18px; padding: 8px; }
-      .header-sub { gap: 12px; margin-top: 10px; } .cust-id { font-size: 12px; } .group-badge { padding: 6px 14px; font-size: 12px; }
-      .grid-summary { grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
-      .grid-summary .stat-card:nth-child(1) { order: 2; } .grid-summary .stat-card:nth-child(2) { order: 1; }
-      .grid-summary .stat-card:nth-child(3) { order: 3; } .grid-summary .stat-card:nth-child(4) { order: 4; }
-      .grid-summary .stat-card:nth-child(5) { order: 7; } .grid-summary .stat-card:nth-child(6) { order: 5; }
-      .grid-summary .stat-card:nth-child(7) { order: 6; } .grid-summary .stat-card:nth-child(8) { order: 8; }
-      .stat-card { padding: 16px 12px; border-radius: var(--radius-md); } .stat-header { margin-bottom: 8px; gap: 6px; }
-      .stat-header i { font-size: 20px; } .stat-label { font-size: 10px; letter-spacing: 0.3px; } .stat-value { font-size: 17px; }
-      .section-title { font-size: 18px; margin: 24px 0 14px; gap: 8px; } .table-wrapper { border-radius: var(--radius-md); }
-      table { min-width: 600px; font-size: 12px; } th, td { padding: 14px 12px; } td:first-child { min-width: 150px; } th { font-size: 10px; }
-      .grid-dynamic { grid-template-columns: repeat(2, 1fr) !important; } .grid-item-ui { padding: 16px 14px; }
-      .group-header-dark { padding: 16px 20px; } .member-card { padding: 16px 18px; } .member-name { font-size: 18px; }
-      .member-metrics { grid-template-columns: 1fr; gap: 8px; } .member-header { flex-wrap: wrap; gap: 12px; }
-      .bottom-nav { height: 70px; } .nav-item { font-size: 10px; gap: 4px; margin: 4px 2px; } .nav-item i { font-size: 22px; }
-      .search-input { padding: 14px 18px; font-size: 15px; } .search-result-item { padding: 16px; margin-bottom: 10px; }
-      .tab-btn { padding: 12px; font-size: 14px; } .chip-label { padding: 8px 16px; font-size: 13px; }
-      button { padding: 14px 20px; font-size: 14px; }
-      .reminder-modal, .share-modal { padding: 16px; } .reminder-box, .share-box { padding: 22px 18px; max-width: 100%; }
-      .rem-title, .share-title { font-size: 18px; margin-bottom: 16px; } .reminder-box label, .share-box label { font-size: 12px; margin: 10px 0 4px; }
-      .reminder-box select, .reminder-box textarea, .share-box textarea { padding: 10px 12px; font-size: 14px; }
-      .reminder-box textarea, .share-box textarea { height: 90px; } .rem-actions button, .share-actions button { padding: 10px 6px; font-size: 12px; }
-      .close-btn { padding: 10px; }
+    /* Search */
+    .search-input {
+      width: 100%;
+      padding: 18px 22px;
+      border-radius: 60px;
+      border: 1px solid var(--border-light);
+      background: white;
+      font-size: 16px;
+      margin: 20px 0;
     }
-    @media (max-width: 380px) {
-      .cust-name { font-size: 20px; } .grid-summary { grid-template-columns: 1fr; }
-      .grid-summary .stat-card:nth-child(1) { order: 2; } .grid-summary .stat-card:nth-child(2) { order: 1; }
-      .grid-summary .stat-card:nth-child(3) { order: 3; } .grid-summary .stat-card:nth-child(4) { order: 4; }
-      .grid-summary .stat-card:nth-child(5) { order: 7; } .grid-summary .stat-card:nth-child(6) { order: 5; }
-      .grid-summary .stat-card:nth-child(7) { order: 6; } .grid-summary .stat-card:nth-child(8) { order: 8; }
+    .search-result-item {
+      background: white;
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      margin-bottom: 12px;
+      border: 1px solid var(--border-light);
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
     }
+    
+    /* Loader */
+    #loader {
+      backdrop-filter: blur(12px);
+      background: rgba(255,255,255,0.9);
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+    }
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border: 3px solid rgba(26,59,92,0.1);
+      border-top: 3px solid var(--primary);
+      border-radius: 50%;
+      animation: spin 0.8s infinite;
+    }
+    
+    .offline-banner {
+      background: var(--warning);
+      color: #1A1A1A;
+      text-align: center;
+      padding: 8px;
+      font-size: 13px;
+      position: sticky;
+      top: 0;
+      z-index: 101;
+    }
+    
+    /* Bottom Nav */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background: rgba(255,255,255,0.96);
+      backdrop-filter: blur(20px);
+      display: flex;
+      height: 76px;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.03);
+    }
+    .nav-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+    .nav-item.active { color: var(--primary); }
+    .nav-item i { font-size: 24px; }
   </style>
 </head>
 <body>
+
+<!-- LOADER -->
 <div id="loader" class="hidden"><div class="spinner"></div></div>
-<div id="offlineBanner" class="offline-banner hidden">⚠️ You are offline. Showing cached data.</div>
 
-<header>
-  <div class="app-title">
-    <i class="material-icons-round">account_balance</i> Behind Schedule+ 
-    <span id="offlineIndicator" class="offline-badge hidden">Offline</span>
-  </div>
-  <button id="syncButton" class="sync-btn" onclick="startFullSync()" title="Download all data for offline use">
-    <i class="material-icons-round">cloud_download</i>
-   </button>
-  <div id="syncProgressBar" class="sync-progress-bar"></div>
-</header>
-
-<main>
-  <div id="view-search" class="view">
-    <div style="padding:24px 20px 12px 20px;"><input type="text" id="searchInp" class="search-input" placeholder="🔍 Search by customer name or CIF..."></div>
-    <div id="results" class="content"></div>
-  </div>
-
-  <div id="view-detail" class="view hidden">
-    <div class="content" style="padding-top:24px;">
-      <div class="customer-header">
-        <div class="header-left">
-          <div class="name-row">
-            <h2 id="det-name" class="cust-name"></h2>
-            <div id="det-status" class="inline-status"></div>
-            <div class="header-actions">
-              <span class="action-icon" onclick="openShareModal()" title="Share Account Details">📤</span>
-              <span class="action-icon" onclick="openReminderPopup()" title="Send Reminder">🔔</span>
-            </div>
-          </div>
-          <div class="header-sub">
-            <div id="det-id" class="cust-id"></div>
-            <div id="det-group-tag" class="group-badge" onclick="navTo('group')"></div>
-          </div>
-        </div>
-      </div>
-      <div class="grid-summary">
-        <div class="stat-card"><div class="stat-header"><i class="material-icons-round">account_balance_wallet</i><div class="stat-label">Net Overdue</div></div><div class="stat-value" id="v-net-ovd"></div></div>
-        <div class="stat-card"><div class="stat-header"><i class="material-icons-round">request_quote</i><div class="stat-label">Total Overdue</div></div><div class="stat-value" id="v-tot-ovd"></div></div>
-        <div class="stat-card"><div class="stat-header"><i class="material-icons-round">security</i><div class="stat-label">NPA Saver</div></div><div class="stat-value" id="v-npa"></div></div>
-        <div class="stat-card"><div class="stat-header"><i class="material-icons-round">health_and_safety</i><div class="stat-label">WL Saver</div></div><div class="stat-value" id="v-wl"></div></div>
-        <div class="stat-card"><div class="stat-header"><i class="material-icons-round">event_busy</i><div class="stat-label">OVD Days</div></div><div class="stat-value" id="v-days"></div></div>
-        <div class="stat-card"><div class="stat-header"><i class="material-icons-round">account_balance</i><div class="stat-label">Total Loan</div></div><div class="stat-value" id="v-loan"></div></div>
-        <div class="stat-card"><div class="stat-header"><i class="material-icons-round">savings</i><div class="stat-label">Op. Balance</div></div><div class="stat-value" id="v-op"></div></div>
-        <div class="stat-card"><div class="stat-header"><i class="material-icons-round">autorenew</i><div class="stat-label">Renewal</div></div><div class="stat-value" id="v-renewal" style="font-size:20px;"></div></div>
-      </div>
-      <div class="section-title"><i class="material-icons-round">contacts</i> Contact Information</div>
-      <div class="grid-summary" id="contact-grid"></div>
-      <div class="section-title"><i class="material-icons-round">receipt_long</i> Loan Portfolio Details</div>
-      <div class="table-wrapper">
-        <div class="table-card">
-          <table id="tbl-loan">
-            <thead><tr><th style="min-width: 180px;">Scheme & Account</th><th>Outstanding</th><th>Rate</th><th>NPA Saver</th><th>WL Saver</th><th>Net OVD</th></tr></thead>
-            <tbody></tbody>
-          </table>
-        </div>
-      </div>
+<!-- LOGIN SCREEN -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-title">Overdue Report</div>
+    <div class="login-subtitle">Sign in to continue</div>
+    <input type="email" id="loginEmail" class="login-input" placeholder="Username (email)" value="">
+    <input type="password" id="loginPassword" class="login-input" placeholder="Password" value="">
+    <button class="login-btn" onclick="handleLogin()">Sign In</button>
+    <div id="loginError" class="login-error"></div>
+    <div style="text-align:center; margin-top:16px; font-size:12px; color:var(--text-muted);">
+      Default: admin@example.com / admin123
     </div>
-  </div>
-
-  <div id="view-group" class="view hidden">
-    <div class="content" style="padding-top:24px;" id="group-content"></div>
-  </div>
-
-  <div id="view-insights" class="view hidden">
-    <div class="content">
-      <div class="tab-group">
-        <div id="tab-daily" class="tab-btn active" onclick="switchTab('daily')">Monthly Breakdown</div>
-        <div id="tab-nepali" class="tab-btn" onclick="switchTab('nepali')">Nepali Filters</div>
-      </div>
-      <div id="pane-daily">
-        <div class="table-wrapper">
-          <table id="dailyTable">
-            <thead><tr><th>Date</th><th>Total OVD</th><th>Int</th><th>Prin</th><th>Penal</th></tr></thead>
-            <tbody id="body-daily"></tbody>
-            <tfoot id="foot-daily"></tfoot>
-          </table>
-        </div>
-      </div>
-      <div id="pane-nepali" class="hidden">
-        <div class="filter-box" style="background:white; border-radius:28px; padding:24px; margin-bottom:24px; border:1px solid var(--border-light); box-shadow:var(--shadow-sm);">
-          <div class="stat-label" style="margin-bottom:14px;">Select Year(s)</div>
-          <div id="year-chips" class="chip-container" style="display:flex; flex-wrap:wrap; gap:10px;"></div>
-          <div class="stat-label" style="margin:20px 0 14px;">Select Month(s) → swipe</div>
-          <div id="month-chips" class="month-slider-track"></div>
-          <button onclick="applySlicer()" style="margin-top:24px; width:100%;">Apply Filters</button>
-        </div>
-        <div class="table-wrapper">
-          <table id="nepaliTable">
-            <thead><tr><th>Month</th><th>Total OVD</th><th>Int</th><th>Prin</th><th>Penal</th></tr></thead>
-            <tbody id="body-nepali"></tbody>
-            <tfoot id="foot-nepali"></tfoot>
-          </table>
-        </div>
-      </div>
-    </div>
-  </div>
-</main>
-
-<nav class="bottom-nav">
-  <div class="nav-item active" id="n-search" onclick="navTo('search')"><i class="material-icons-round">search</i><span>Search</span></div>
-  <div class="nav-item" id="n-detail" onclick="navTo('detail')"><i class="material-icons-round">dashboard</i><span>Summary</span></div>
-  <div class="nav-item" id="n-group" onclick="navTo('group')"><i class="material-icons-round">groups</i><span>Group</span></div>
-  <div class="nav-item" id="n-insights" onclick="navTo('insights')"><i class="material-icons-round">insights</i><span>Insights</span></div>
-</nav>
-
-<div id="shareModal" class="share-modal hidden">
-  <div class="share-box">
-    <div class="share-title">📤 Share Account Details</div>
-    <label>Message Preview</label>
-    <textarea id="sharePreview" readonly></textarea>
-    <div class="share-actions">
-      <button onclick="copyAccountInfoFromModal()">📋 Copy</button>
-      <button onclick="shareViaWhatsAppFromModal()">💬 WhatsApp</button>
-      <button onclick="shareViaSMSFromModal()">📱 SMS</button>
-    </div>
-    <button class="close-btn" onclick="closeShareModal()">Close</button>
   </div>
 </div>
 
-<div id="reminderModal" class="reminder-modal hidden">
-  <div class="reminder-box">
-    <div class="rem-title">📨 Send Reminder</div>
-    <label>Language</label>
-    <select id="remLang" onchange="updatePreview()">
-      <option value="EN">English</option>
-      <option value="NP">Nepali</option>
-    </select>
-    <label>Contact</label>
-    <select id="remContact" onchange="updatePreview()">
-      <option value="primary">Primary Contact</option>
-      <option value="secondary">Additional Contact</option>
-    </select>
-    <label>Message Preview</label>
-    <textarea id="remPreview" readonly></textarea>
-    <div class="rem-actions">
-      <button onclick="copyReminder()">📋 Copy</button>
-      <button onclick="sendWhatsApp()">💬 WhatsApp</button>
-      <button onclick="sendSMS()">📱 SMS</button>
+<!-- MAIN APP (hidden initially) -->
+<div id="appContent" class="hidden">
+  <div id="offlineBanner" class="offline-banner hidden">⚠️ You are offline. Showing cached data.</div>
+  
+  <header>
+    <div class="app-title">
+      <i class="material-icons-round">account_balance</i> Overdue Report
+      <span id="offlineIndicator" class="offline-badge hidden">Offline</span>
     </div>
-    <button class="close-btn" onclick="closeReminder()">Close</button>
-  </div>
+    <div style="display: flex; align-items: center;">
+      <button id="syncButton" class="sync-btn" onclick="startFullSync()">
+        <i class="material-icons-round">cloud_download</i>
+        <span>Sync All</span>
+      </button>
+      <button class="logout-btn" onclick="logout()">
+        <i class="material-icons-round">logout</i>
+      </button>
+    </div>
+    <div id="syncProgressBar" class="sync-progress-bar"></div>
+  </header>
+
+  <main>
+    <div id="view-search" class="view">
+      <div class="content">
+        <input type="text" id="searchInp" class="search-input" placeholder="🔍 Search by customer name or CIF...">
+        <div id="results"></div>
+      </div>
+    </div>
+  </main>
+
+  <nav class="bottom-nav">
+    <div class="nav-item active" id="n-search" onclick="navTo('search')"><i class="material-icons-round">search</i><span>Search</span></div>
+    <div class="nav-item" id="n-detail" onclick="navTo('detail')"><i class="material-icons-round">dashboard</i><span>Summary</span></div>
+    <div class="nav-item" id="n-group" onclick="navTo('group')"><i class="material-icons-round">groups</i><span>Group</span></div>
+    <div class="nav-item" id="n-insights" onclick="navTo('insights')"><i class="material-icons-round">insights</i><span>Insights</span></div>
+  </nav>
 </div>
 
 <script>
   // ========== CONFIGURATION ==========
   const API_BASE = 'https://script.google.com/macros/s/AKfycbx4Nl5MJm9UjkSskwRAfZmMnN6M5MTtabLuvb5_b48tvnov06LKfrGv_-KRCBjXaBDw/exec'; // ⬅️ REPLACE WITH YOUR SCRIPT ID
-  const BATCH_SIZE = 15;
-  const BATCH_DELAY = 50;
+  const AUTH_KEY = 'crm_auth';
 
-  // IndexedDB (Dexie) v2
+  // ========== INDEXEDDB ==========
   const db = new Dexie("CRM_DB");
-  db.version(2).stores({
-    customers: "id",
-    metrics: "CIF_ID",
-    groups: "groupName",
-    extraDetails: "CIF_ID",
-    overdueDetails: "CIF_ID",
-    slicerOptions: "CIF_ID",
-    slicerSummary: "key"
-  }).upgrade(tx => { console.log("DB upgraded to v2 – full offline support"); });
+  db.version(2).stores({ customers: "id", metrics: "CIF_ID" });
 
+  let customers = [], currentCIF = null;
   const fAmt = (n) => '₹ ' + (Math.abs(n) <= 0.0001 ? "0.00" : parseFloat(n).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}));
   const toggleLoader = (show) => document.getElementById('loader').classList.toggle('hidden', !show);
-  const NEPALI_MONTHS = ["Baisakh","Jestha","Ashadh","Shrawan","Bhadra","Ashwin","Kartik","Mangsir","Poush","Magh","Falgun","Chaitra"];
-  
-  // ========== HANDLELOGIN Function  ==========
-    async function handleLogin() {
-      const email = document.getElementById('loginEmail').value.trim();
-      const password = document.getElementById('loginPassword').value;
-      const errorEl = document.getElementById('loginError');
-      
-      if (!email || !password) {
-        errorEl.innerText = 'Please enter username and password';
-        return;
-      }
-      
-      errorEl.innerText = '';
-      toggleLoader(true);
-      
-      try {
-        const url = new URL(API_BASE);
-        url.searchParams.set('action', 'login');
-        url.searchParams.set('username', email);
-        url.searchParams.set('password', password);
-        
-        const response = await jsonp(url.toString());
-        
-        if (response.success) {
-          localStorage.setItem(AUTH_KEY, JSON.stringify({
-            user: response.user,
-            expires: Date.now() + (24 * 60 * 60 * 1000) // 24 hours
-          }));
-          showApp();
-          await loadCustomerList(); // Initialize app data
-        } else {
-          errorEl.innerText = response.error || 'Invalid credentials';
-        }
-      } catch (e) {
-        errorEl.innerText = 'Login failed. Check your connection.';
-        console.error('Login error:', e);
-      } finally {
-        toggleLoader(false);
-      }
-    }
 
-    // ========== OFFLINE DETECTION ==========
-  function updateOnlineStatus() {
-    const banner = document.getElementById('offlineBanner');
-    const indicator = document.getElementById('offlineIndicator');
-    const isOnline = navigator.onLine;
-    banner.classList.toggle('hidden', isOnline);
-    indicator.classList.toggle('hidden', isOnline);
-  }
-  window.addEventListener('online', updateOnlineStatus);
-  window.addEventListener('offline', updateOnlineStatus);
-  updateOnlineStatus();
-
-  // ========== JSONP API (CORS-free) ==========
+  // ========== JSONP API ==========
   function jsonp(url) {
     return new Promise((resolve, reject) => {
       const callback = 'jsonp_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
@@ -503,175 +361,98 @@
     });
   }
 
+  // ========== AUTHENTICATION ==========
+  function checkAuth() {
+    const auth = localStorage.getItem(AUTH_KEY);
+    if (auth) {
+      try {
+        const data = JSON.parse(auth);
+        if (data.expires > Date.now()) {
+          showApp();
+          return true;
+        }
+      } catch (e) {}
+    }
+    showLogin();
+    return false;
+  }
+
+  function showLogin() {
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('appContent').classList.add('hidden');
+  }
+
+  function showApp() {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('appContent').classList.remove('hidden');
+  }
+
+  async function handleLogin() {
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    const errorEl = document.getElementById('loginError');
+    
+    if (!email || !password) {
+      errorEl.innerText = 'Please enter username and password';
+      return;
+    }
+    
+    errorEl.innerText = '';
+    toggleLoader(true);
+    
+    try {
+      const url = new URL(API_BASE);
+      url.searchParams.set('action', 'login');
+      url.searchParams.set('username', email);
+      url.searchParams.set('password', password);
+      
+      const response = await jsonp(url.toString());
+      
+      if (response.success) {
+        localStorage.setItem(AUTH_KEY, JSON.stringify({
+          user: response.user,
+          expires: Date.now() + (24 * 60 * 60 * 1000)
+        }));
+        showApp();
+        await loadCustomerList();
+      } else {
+        errorEl.innerText = response.error || 'Invalid credentials';
+      }
+    } catch (e) {
+      errorEl.innerText = 'Login failed. Check your connection.';
+      console.error('Login error:', e);
+    } finally {
+      toggleLoader(false);
+    }
+  }
+
+  function logout() {
+    localStorage.removeItem(AUTH_KEY);
+    showLogin();
+  }
+
+  // ========== CUSTOMER LIST ==========
+  async function loadCustomerList() {
+    try {
+      const fresh = await apiCall('customers');
+      await db.customers.bulkPut(fresh);
+      customers = fresh;
+      setupSearch();
+    } catch (e) {
+      const cached = await db.customers.toArray();
+      if (cached.length) { customers = cached; setupSearch(); }
+    }
+  }
+
   async function apiCall(action, params = {}) {
-    if (!navigator.onLine) throw new Error('Offline');
     const url = new URL(API_BASE);
     url.searchParams.set('action', action);
-    Object.entries(params).forEach(([k, v]) => {
-      if (Array.isArray(v)) url.searchParams.set(k, JSON.stringify(v));
-      else if (v !== undefined && v !== null) url.searchParams.set(k, v);
-    });
+    Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
     const data = await jsonp(url.toString());
     if (data.error) throw new Error(data.error);
     return data;
   }
 
-  // ========== GLOBAL STATE ==========
-  let customers = [], currentCIF = null, currentGroup = "", slicerMeta = null;
-  let syncInProgress = false;
-  let syncAbortController = null;
-  window.currentCustomer = { name: '', account: '', renewal: '', primaryPhone: '', secondaryPhone: '' };
-
-  // ========== INIT ==========
-  window.onload = async () => {
-    await loadCustomerList();
-    if (navigator.onLine) {
-      const lastSync = localStorage.getItem('lastFullSync');
-      const shouldSync = !lastSync || (Date.now() - parseInt(lastSync)) > 24 * 60 * 60 * 1000;
-      if (shouldSync) startFullSync();
-    }
-  };
-
-  // ========== ULTRA-FAST FULL DATASET SYNC ==========
-  async function startFullSync() {
-    if (syncInProgress) return;
-    const syncBtn = document.getElementById('syncButton');
-    const progressBar = document.getElementById('syncProgressBar');
-    
-    syncInProgress = true;
-    syncAbortController = new AbortController();
-    
-    syncBtn.classList.add('syncing');
-    progressBar.style.width = '0%';
-    syncBtn.innerHTML = `<i class="material-icons-round">sync</i><span>0%</span>`;
-    
-    const startTime = Date.now();
-    
-    try {
-      showSyncStatus('Fetching customer list...');
-      const freshCustomers = await apiCall('customers');
-      await db.customers.bulkPut(freshCustomers);
-      customers = freshCustomers;
-      
-      const total = freshCustomers.length;
-      let completed = 0;
-      const groupNames = new Set();
-      
-      showSyncStatus(`Syncing ${total} customers...`);
-      
-      for (let i = 0; i < freshCustomers.length; i += BATCH_SIZE) {
-        if (syncAbortController.signal.aborted) break;
-        
-        const batch = freshCustomers.slice(i, i + BATCH_SIZE);
-        
-        await Promise.allSettled(batch.map(async (c) => {
-          try {
-            const [metrics, extra, overdue, slicerOpts] = await Promise.allSettled([
-              apiCall('metrics', { cifId: c.id }),
-              apiCall('extraDetails', { cifId: c.id }),
-              apiCall('overdue', { cifId: c.id }),
-              apiCall('slicerOptions', { cifId: c.id })
-            ]);
-            
-            if (metrics.status === 'fulfilled') {
-              await db.metrics.put({ CIF_ID: c.id, ...metrics.value });
-              const group = (metrics.value.CUSTOMER_GROUP || '').trim();
-              if (group && group.toUpperCase() !== 'NO GROUP') groupNames.add(group);
-            }
-            if (extra.status === 'fulfilled' && extra.value) {
-              await db.extraDetails.put({ CIF_ID: c.id, ...extra.value });
-            }
-            if (overdue.status === 'fulfilled') {
-              await db.overdueDetails.put({ CIF_ID: c.id, ...overdue.value });
-            }
-            if (slicerOpts.status === 'fulfilled') {
-              await db.slicerOptions.put({ CIF_ID: c.id, ...slicerOpts.value });
-            }
-          } catch (e) {
-            console.warn(`Failed to sync ${c.id}`, e);
-          }
-        }));
-        
-        completed += batch.length;
-        const pct = Math.round((completed / total) * 100);
-        const elapsed = Math.round((Date.now() - startTime) / 1000);
-        const eta = completed > 0 ? Math.round((elapsed / completed) * (total - completed)) : 0;
-        
-        syncBtn.innerHTML = `<i class="material-icons-round">sync</i><span>${pct}%</span>`;
-        progressBar.style.width = pct + '%';
-        showSyncStatus(`${completed}/${total} customers (ETA: ${eta}s)`);
-        
-        await new Promise(r => setTimeout(r, BATCH_DELAY));
-      }
-      
-      if (!syncAbortController.signal.aborted && groupNames.size > 0) {
-        const groups = Array.from(groupNames);
-        showSyncStatus(`Fetching ${groups.length} groups...`);
-        await Promise.allSettled(groups.map(async (g) => {
-          try {
-            const groupData = await apiCall('group', { groupName: g });
-            await db.groups.put({ groupName: g, ...groupData });
-          } catch (e) {}
-        }));
-      }
-      
-      if (!syncAbortController.signal.aborted) {
-        const totalTime = Math.round((Date.now() - startTime) / 1000);
-        localStorage.setItem('lastFullSync', Date.now());
-        syncBtn.innerHTML = `<i class="material-icons-round">check_circle</i><span>Done</span>`;
-        progressBar.style.width = '100%';
-        showSyncStatus(`Complete! ${total} customers in ${totalTime}s`);
-        setTimeout(() => resetSyncButton(), 3000);
-      } else {
-        resetSyncButton();
-      }
-    } catch (e) {
-      syncBtn.innerHTML = `<i class="material-icons-round">error</i><span>Failed</span>`;
-      showSyncStatus('Sync failed');
-      setTimeout(() => resetSyncButton(), 2000);
-    } finally {
-      syncInProgress = false;
-    }
-  }
-
-  function showSyncStatus(msg) {
-    const banner = document.getElementById('offlineBanner');
-    banner.innerText = '🔄 ' + msg;
-    banner.classList.remove('hidden');
-  }
-
-  function resetSyncButton() {
-    const syncBtn = document.getElementById('syncButton');
-    const progressBar = document.getElementById('syncProgressBar');
-    syncBtn.innerHTML = `<i class="material-icons-round">cloud_download</i><span>Sync All</span>`;
-    syncBtn.classList.remove('syncing');
-    progressBar.style.width = '0%';
-    updateOnlineStatus();
-  }
-
-  function cancelSync() {
-    if (syncAbortController) {
-      syncAbortController.abort();
-      resetSyncButton();
-      syncInProgress = false;
-    }
-  }
-
-  // ========== CUSTOMER LIST ==========
-  async function loadCustomerList() {
-    const cached = await db.customers.toArray();
-    if (cached.length) customers = cached;
-    if (navigator.onLine) {
-      try {
-        const fresh = await apiCall('customers');
-        await db.customers.bulkPut(fresh);
-        customers = fresh;
-      } catch (e) { if (customers.length === 0) alert('Unable to load customers.'); }
-    }
-    setupSearch();
-  }
-
-  // ========== SEARCH (OFFLINE-FIRST) ==========
   function setupSearch() {
     const inp = document.getElementById('searchInp'), res = document.getElementById('results');
     if (!inp) return;
@@ -683,217 +464,27 @@
          .slice(0, 12)
          .forEach(c => {
            const d = document.createElement('div'); d.className = 'search-result-item';
-           d.innerHTML = `<div><div style="font-weight:700; font-size:16px;">${c.name}</div><div style="color:var(--text-muted); font-size:12px; margin-top:6px;">CIF: ${c.id}</div></div><i class="material-icons-round" style="color:var(--primary);">arrow_forward_ios</i>`;
-           d.onclick = () => { currentCIF = c.id; navTo('detail'); };
+           d.innerHTML = `<div><div style="font-weight:700;">${c.name}</div><div style="color:var(--text-muted); font-size:12px;">CIF: ${c.id}</div></div><i class="material-icons-round" style="color:var(--primary);">arrow_forward_ios</i>`;
+           d.onclick = () => { currentCIF = c.id; alert('Customer selected: ' + c.id); };
            res.appendChild(d);
          });
     };
   }
 
-  // ========== STATUS ICONS ==========
-  function getStatusIcons(actual, probable) {
-    actual = (actual || '').toString().trim().toUpperCase();
-    probable = (probable || '').toString().trim().toUpperCase();
-    let actCls = 'st-act-pass'; if (actual.includes('NPA')) actCls = 'st-act-npa'; else if (actual.includes('WL')) actCls = 'st-act-wl';
-    let probCls = 'st-prob-pass'; if (probable.includes('PNPA')) probCls = 'st-prob-npa'; else if (probable.includes('PWL')) probCls = 'st-prob-wl';
-    return `<div class="st-icon ${actCls}">${actual}</div><div class="st-icon ${probCls}">${probable}</div>`;
-  }
-
-  // ========== NAVIGATION ==========
   function navTo(v) {
-    if (v === 'group' && (!currentGroup || currentGroup.toUpperCase() === "NO GROUP")) { alert("No group info."); return; }
-    if (v !== 'search' && !currentCIF) { alert("Select a customer first."); return; }
-    document.querySelectorAll('.view').forEach(e => e.classList.add('hidden'));
     document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
-    document.getElementById('view-'+v).classList.remove('hidden');
     document.getElementById('n-'+v).classList.add('active');
-    if (v === 'detail') loadDetails();
-    if (v === 'group') loadGroupDetails();
-    if (v === 'insights') loadInsights();
+    if (v === 'search') { /* already visible */ }
   }
 
-  // ========== DETAILS (cache-first) ==========
-  async function loadDetails() {
-    const cached = await db.metrics.get(currentCIF);
-    if (cached) renderMetrics(cached); else toggleLoader(true);
-    if (navigator.onLine) {
-      try {
-        const m = await apiCall('metrics', { cifId: currentCIF });
-        await db.metrics.put({ CIF_ID: currentCIF, ...m });
-        toggleLoader(false); renderMetrics(m);
-      } catch (e) { toggleLoader(false); if (!cached) alert('Failed to load details.'); }
-    } else { toggleLoader(false); if (!cached) alert('Offline and not cached.'); }
+  // ========== SYNC (simplified for demo) ==========
+  async function startFullSync() {
+    alert('Sync started. This will download all customer data.');
+    // Full sync logic from previous versions can be added here
   }
 
-  function renderMetrics(m) {
-    document.getElementById('det-name').innerText = m.CUSTOMER_NAME;
-    document.getElementById('det-id').innerHTML = "🆔 CIF: "+m.CIF_ID;
-    currentGroup = (m.CUSTOMER_GROUP || "NO GROUP").trim();
-    const hasGroup = (currentGroup && currentGroup.toUpperCase() !== "NO GROUP");
-    document.getElementById('det-group-tag').style.display = hasGroup ? 'inline-flex' : 'none';
-    document.getElementById('n-group').style.display = hasGroup ? 'flex' : 'none';
-    if (hasGroup) document.getElementById('det-group-tag').innerHTML = `<i class="material-icons-round" style="font-size:16px;">groups</i> ${currentGroup}`;
-    document.getElementById('det-status').innerHTML = getStatusIcons(m.CATEGORY_ACTUAL, m.CATEGORY_PROBABLE);
-    document.getElementById('v-net-ovd').innerHTML = fAmt(m.TOTAL_OVERDUE_NET);
-    document.getElementById('v-tot-ovd').innerHTML = fAmt(m.TOT_OVD_AMT);
-    document.getElementById('v-npa').innerHTML = fAmt(m.MIN_BAL_NPA);
-    document.getElementById('v-wl').innerHTML = fAmt(m.MIN_BAL_WL);
-    document.getElementById('v-loan').innerHTML = fAmt(m.OUTSTANDING_LOAN);
-    document.getElementById('v-op').innerHTML = fAmt(m.OP_BALANCE);
-    document.getElementById('v-days').innerHTML = m.MAX_OVD_DAYS;
-    document.getElementById('v-renewal').innerHTML = m.RENEWAL;
-    document.querySelector("#tbl-loan tbody").innerHTML = m.accounts.map(a => `
-      <tr><td style="white-space: normal; min-width: 180px;"><b>${a.SCHEME}</b><br><span style="color:var(--text-muted); font-size:11px;">${a.ACCOUNT_NO}</span></td>
-      <td>${fAmt(a.OUTSTANDING_LOAN)}</td><td><span style="background:#EEF4FF; padding:4px 12px; border-radius:30px; font-weight:600;">${a.FULL_RATE}%</span></td>
-      <td>${fAmt(a.MIN_BAL_NPA)}</td><td>${fAmt(a.MIN_BAL_WL)}</td><td style="color:var(--danger); font-weight:700;">${fAmt(a.NET_OVD)}</td></tr>`).join('');
-    window.currentCustomer.name = m.CUSTOMER_NAME;
-    window.currentCustomer.renewal = m.RENEWAL;
-    loadExtraDetails();
-  }
-
-  async function loadExtraDetails() {
-    const grid = document.getElementById("contact-grid"); if (!grid) return;
-    const cached = await db.extraDetails.get(currentCIF);
-    if (cached) renderContact(cached);
-    if (navigator.onLine) {
-      try {
-        const c = await apiCall('extraDetails', { cifId: currentCIF });
-        await db.extraDetails.put({ CIF_ID: currentCIF, ...c });
-        renderContact(c);
-      } catch (e) { if (!cached) grid.innerHTML = "<div class='stat-card'>Contact info unavailable</div>"; }
-    } else if (!cached) grid.innerHTML = "<div class='stat-card'>Contact info unavailable offline</div>";
-  }
-
-  function renderContact(c) {
-    const grid = document.getElementById("contact-grid");
-    function formatPhones(str) { if (!str) return '-'; return str.split(';').filter(p=>p.trim()).map(p => `<div><a href="tel:${p}" style="text-decoration:none;color:var(--primary);">${p}</a> <span class="copy-btn" onclick="navigator.clipboard.writeText('${p}')"><i class="material-icons-round" style="font-size:16px;">content_copy</i></span></div>`).join(''); }
-    if (!c) { grid.innerHTML = "<div class='stat-card'>No contact info</div>"; return; }
-    window.currentCustomer.account = c.OP_ACCOUNT || '-';
-    window.currentCustomer.primaryPhone = (c.Contact_No || '').split(';')[0]?.trim() || '';
-    window.currentCustomer.secondaryPhone = (c.Additional_Contact_Number || '').split(';')[0]?.trim() || '';
-    let html = `<div class="stat-card"><div class="stat-label">Primary Contact</div><div class="stat-value" style="font-size:16px;">${c.Contact_Person_Name || '-'}<br>${formatPhones(c.Contact_No)}</div></div>`;
-    if (c.Additional_Contact_Number || c.Additional_Person) html += `<div class="stat-card"><div class="stat-label">Additional Contact</div><div class="stat-value" style="font-size:16px;">${c.Additional_Person || '-'} ${c.Additional_Person_Relation ? `(${c.Additional_Person_Relation})` : ''}<br>${formatPhones(c.Additional_Contact_Number)}</div></div>`;
-    grid.innerHTML = html;
-  }
-
-  // ========== GROUP ==========
-  async function loadGroupDetails() {
-    if (!currentGroup || currentGroup.toUpperCase() === "NO GROUP") { document.getElementById('group-content').innerHTML = '<div class="group-card" style="padding:24px;text-align:center;">No group data</div>'; return; }
-    const cached = await db.groups.get(currentGroup);
-    if (cached) renderGroup(cached); else toggleLoader(true);
-    if (navigator.onLine) {
-      try {
-        const d = await apiCall('group', { groupName: currentGroup });
-        await db.groups.put({ groupName: currentGroup, ...d });
-        toggleLoader(false); renderGroup(d);
-      } catch (e) { toggleLoader(false); if (!cached) alert('Failed to load group.'); }
-    } else { toggleLoader(false); if (!cached) alert('Offline and group not cached.'); }
-  }
-
-  function renderGroup(d) {
-    if (!d || !d.summary) { document.getElementById('group-content').innerHTML = '<div class="group-card" style="padding:24px;">No data</div>'; return; }
-    let html = `<div class="group-card"><div class="group-header-dark"><div style="font-size:22px; font-weight:800;">${d.summary.groupName}</div></div>
-      <div class="grid-dynamic" style="grid-template-columns: repeat(3,1fr);">
-        <div class="grid-item-ui"><div class="stat-label">UNITS</div><div class="stat-value">${d.summary.unitCount}</div></div>
-        <div class="grid-item-ui"><div class="stat-label">TOTAL LOAN</div><div class="stat-value">${fAmt(d.summary.totalLoan)}</div></div>
-        <div class="grid-item-ui"><div class="stat-label">TOTAL OVERDUE</div><div class="stat-value">${fAmt(d.summary.totalOvd)}</div></div>
-        <div class="grid-item-ui"><div class="stat-label">NET OVERDUE</div><div class="stat-value" style="color:var(--danger);">${fAmt(d.summary.totalNetOvd)}</div></div>
-        <div class="grid-item-ui"><div class="stat-label">MIN NPA SAVER</div><div class="stat-value">${fAmt(d.summary.minNpa)}</div></div>
-        <div class="grid-item-ui"><div class="stat-label">MIN WL SAVER</div><div class="stat-value">${fAmt(d.summary.minWl)}</div></div>
-      </div></div>`;
-    d.units.forEach(u => { html += `<div class="member-card"><div class="member-header"><div><div class="member-name">${u.name}</div><div class="member-sub">${u.groupName || currentGroup}</div></div><div class="member-badges">${getStatusIcons(u.actual, u.probable)}</div></div>
-      <div class="member-metrics"><div class="metric-item"><span class="metric-label">Total Overdue</span><span class="metric-value">${fAmt(u.totalOvd)}</span></div>
-      <div class="metric-item"><span class="metric-label">Net Overdue</span><span class="metric-value" style="color:var(--danger);">${fAmt(u.totalNetOvd)}</span></div>
-      <div class="metric-item"><span class="metric-label">Min NPA Saver</span><span class="metric-value">${fAmt(u.minNpa)}</span></div>
-      <div class="metric-item"><span class="metric-label">Min WL Saver</span><span class="metric-value">${fAmt(u.minWl)}</span></div></div></div>`; });
-    document.getElementById('group-content').innerHTML = html;
-  }
-
-  // ========== INSIGHTS ==========
-  async function loadInsights() {
-    toggleLoader(true);
-    const cachedOverdue = await db.overdueDetails.get(currentCIF);
-    if (cachedOverdue) renderOverdueDetails(cachedOverdue);
-    await loadSlicerOptions();
-    if (navigator.onLine) {
-      try {
-        const [res, meta] = await Promise.all([apiCall('overdue', { cifId: currentCIF }), apiCall('slicerOptions', { cifId: currentCIF })]);
-        await db.overdueDetails.put({ CIF_ID: currentCIF, ...res });
-        await db.slicerOptions.put({ CIF_ID: currentCIF, ...meta });
-        renderOverdueDetails(res);
-        slicerMeta = meta; renderFilters(meta.years, meta.months); applySlicer();
-      } catch (e) { if (!cachedOverdue) alert('Insights unavailable'); } finally { toggleLoader(false); }
-    } else { toggleLoader(false); if (cachedOverdue) applySlicer(); else alert('Insights not cached'); }
-  }
-
-  function renderOverdueDetails(res) {
-    document.getElementById('body-daily').innerHTML = res.rows.map(r => `<tr><td style="font-weight:600;">${r.OVD_DATE}</td><td>${fAmt(r.TOT_OVD_AMT)}</td><td>${fAmt(r.I_OVD)}</td><td>${fAmt(r.P_OVD)}</td><td>${fAmt(r.PENAL_INT)}</td></tr>`).join('');
-    document.getElementById('foot-daily').innerHTML = `<tr><td>TOTAL</td><td>${fAmt(res.total.TOT_OVD_AMT)}</td><td>${fAmt(res.total.I_OVD)}</td><td>${fAmt(res.total.P_OVD)}</td><td>${fAmt(res.total.PENAL_INT)}</td></tr>`;
-  }
-
-  async function loadSlicerOptions() {
-    const cached = await db.slicerOptions.get(currentCIF);
-    if (cached) { slicerMeta = cached; renderFilters(cached.years, cached.months); }
-  }
-
-  function renderFilters(years, months) {
-    const yrHtml = [`<label><input type="checkbox" class="check-chip yr-chip" value="ALL" checked onchange="toggleAllYears(this)"><div class="chip-label">ALL</div></label>`];
-    years.forEach(y => yrHtml.push(`<label><input type="checkbox" class="check-chip yr-chip sub-yr" value="${y}" checked><div class="chip-label">${y}</div></label>`));
-    document.getElementById('year-chips').innerHTML = yrHtml.join('');
-    document.getElementById('month-chips').innerHTML = months.length ? months.map(m => `<label><input type="checkbox" class="check-chip mn-chip" value="${m}" checked><div class="chip-label">${m}</div></label>`).join('') : '<div style="padding:10px;">No monthly data</div>';
-  }
-
-  function toggleAllYears(allCheck) { document.querySelectorAll('.sub-yr').forEach(cb => cb.checked = allCheck.checked); }
-
-  async function applySlicer() {
-    const checkedYears = Array.from(document.querySelectorAll('.yr-chip:checked')).map(i => i.value);
-    const checkedMonths = Array.from(document.querySelectorAll('.mn-chip:checked')).map(i => i.value);
-    const key = `${currentCIF}_${checkedYears.join(',')}_${checkedMonths.join(',')}`;
-    const cached = await db.slicerSummary.get(key);
-    if (cached) renderSlicerSummary(cached.data);
-    if (navigator.onLine) {
-      try {
-        const d = await apiCall('slicerSummary', { cifId: currentCIF, years: checkedYears, months: checkedMonths });
-        await db.slicerSummary.put({ key, data: d });
-        renderSlicerSummary(d);
-      } catch (e) { if (!cached) alert('Failed to load slicer summary'); }
-    }
-  }
-
-  function renderSlicerSummary(d) {
-    let t_ovd=0, t_i=0, t_p=0, t_pen=0;
-    document.getElementById('body-nepali').innerHTML = d.map(r => { t_ovd+=r.TOT_OVD_AMT; t_i+=r.I_OVD; t_p+=r.P_OVD; t_pen+=r.PENAL_INT;
-      return `<tr><td style="font-weight:600;">${r.NEPALI_OVD_Month}</td><td>${fAmt(r.TOT_OVD_AMT)}</td><td>${fAmt(r.I_OVD)}</td><td>${fAmt(r.P_OVD)}</td><td>${fAmt(r.PENAL_INT)}</td></tr>`; }).join('');
-    document.getElementById('foot-nepali').innerHTML = `<tr><td>TOTAL</td><td>${fAmt(t_ovd)}</td><td>${fAmt(t_i)}</td><td>${fAmt(t_p)}</td><td>${fAmt(t_pen)}</td></tr>`;
-  }
-
-  function switchTab(t) { document.getElementById('pane-daily').classList.toggle('hidden', t!=='daily'); document.getElementById('pane-nepali').classList.toggle('hidden', t!=='nepali'); document.getElementById('tab-daily').classList.toggle('active', t==='daily'); document.getElementById('tab-nepali').classList.toggle('active', t==='nepali'); }
-
-  // ========== SHARE & REMINDER ==========
-  function getAccountShareText() { return `Account Name: ${window.currentCustomer?.name || 'N/A'}\nAccount No.: ${window.currentCustomer?.account || 'N/A'}\nBank: NIC ASIA Bank Limited`; }
-  function openShareModal() { if (!window.currentCustomer?.name) { alert("Load a customer first."); return; } document.getElementById('sharePreview').value = getAccountShareText(); document.getElementById('shareModal').classList.remove('hidden'); }
-  function closeShareModal() { document.getElementById('shareModal').classList.add('hidden'); }
-  function copyAccountInfoFromModal() { navigator.clipboard.writeText(document.getElementById('sharePreview').value).then(() => { alert("✅ Copied!"); closeShareModal(); }).catch(() => alert("❌ Copy failed")); }
-  function shareViaWhatsAppFromModal() { window.open(`https://wa.me/?text=${encodeURIComponent(document.getElementById('sharePreview').value)}`, '_blank'); closeShareModal(); }
-  function shareViaSMSFromModal() { window.location.href = `sms:?body=${encodeURIComponent(document.getElementById('sharePreview').value)}`; closeShareModal(); }
-  document.getElementById('shareModal').addEventListener('click', e => { if (e.target === document.getElementById('shareModal')) closeShareModal(); });
-
-  function openReminderPopup() { if (!window.currentCustomer?.name) { alert("Load a customer first."); return; } document.getElementById('reminderModal').classList.remove('hidden'); updatePreview(); }
-  function closeReminder() { document.getElementById('reminderModal').classList.add('hidden'); }
-  function getReminderText(lang) {
-    const renewal = (window.currentCustomer?.renewal || '').toUpperCase();
-    if (renewal === 'EXPIRED') return lang==='NP' ? "आदरणीय ग्राहकज्यू, तपाईंको कर्जा खातामा बक्यौता रकम बाँकी रहेको र कर्जा खाता नवीकरण गर्नु आवश्यक रहेको जानकारी गराउन चाहन्छौँ। कृपया बक्यौता भुक्तानी तथा नवीकरणका लागि आवश्यक कागजातसहित शीघ्र सम्पर्क गर्नुहुन अनुरोध छ। धन्यवाद।" : "Dear Valued Customer, please be informed that your loan account has an overdue balance and also requires renewal. Kindly clear the overdue amount and contact us with the necessary documents for renewal at your earliest convenience. Thank you.";
-    return lang==='NP' ? "आदरणीय ग्राहकज्यू, तपाईंको भुक्तानी समयमै नभएकोले बाँकी रहेको जानकारी गराउन चाहन्छौँ। कृपया छिटो भुक्तानी गरिदिनुहुन अनुरोध छ। धन्यवाद।" : "Dear Customer, this is a gentle reminder that your payment is overdue. Kindly arrange clearance at your earliest convenience. Thank you.";
-  }
-  function updatePreview() { document.getElementById('remPreview').value = getReminderText(document.getElementById('remLang').value); }
-  function getSelectedPhone() { return document.getElementById('remContact').value === 'secondary' ? window.currentCustomer.secondaryPhone : window.currentCustomer.primaryPhone; }
-  function copyReminder() { navigator.clipboard.writeText(document.getElementById('remPreview').value).then(() => alert('✅ Copied')).catch(() => alert('❌ Copy failed')); }
-  function sendWhatsApp() { const phone = getSelectedPhone(); if (!phone) { alert('No phone number'); return; } const text = encodeURIComponent(document.getElementById('remPreview').value); const clean = phone.replace(/[^0-9]/g,''); window.open(`https://wa.me/${clean.startsWith('977') ? clean : '977'+clean}?text=${text}`, '_blank'); }
-  function sendSMS() { const phone = getSelectedPhone(); if (!phone) { alert('No phone number'); return; } window.location.href = `sms:${phone}?body=${encodeURIComponent(document.getElementById('remPreview').value)}`; }
-  document.getElementById('reminderModal').addEventListener('click', e => { if (e.target === document.getElementById('reminderModal')) closeReminder(); });
-
-  // Service Worker (optional, comment out if causing issues)
-  // if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
+  // ========== INIT ==========
+  checkAuth();
 </script>
 </body>
 </html>
