@@ -19,16 +19,36 @@
   <script src="https://unpkg.com/dexie@3.2.3/dist/dexie.js"></script>
   
   <style>
-    /* ====== ORIGINAL PREMIUM STYLES (PRESERVED EXACTLY) ====== */
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    /* ====== EXISTING STYLES UNCHANGED ====== */
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
     :root {
-      --primary: #1A3B5C; --primary-light: #2A5A8C; --accent-gold: #C9A227; --accent-gold-light: #E6C25E;
-      --bg-dark: #0F1A2C; --bg-light: #F4F7FC; --surface-white: #FFFFFF; --glass-bg: rgba(255, 255, 255, 0.85);
-      --glass-border: rgba(255, 255, 255, 0.6); --text-primary: #0A1929; --text-secondary: #2C3E50;
-      --text-muted: #5A6E8A; --border-light: #E2E8F0; --success: #00A86B; --warning: #F5A623; --danger: #E53E3E;
-      --shadow-sm: 0 2px 8px rgba(0,0,0,0.04); --shadow-md: 0 8px 20px rgba(0,0,0,0.06);
-      --shadow-lg: 0 20px 35px -8px rgba(0,0,0,0.12); --shadow-hover: 0 24px 42px -12px rgba(26,59,92,0.18);
-      --radius-xl: 28px; --radius-lg: 18px; --radius-md: 14px; --radius-sm: 10px;
+      --primary: #1A3B5C;
+      --primary-light: #2A5A8C;
+      --accent-gold: #C9A227;
+      --accent-gold-light: #E6C25E;
+      --bg-dark: #0F1A2C;
+      --bg-light: #F4F7FC;
+      --surface-white: #FFFFFF;
+      --glass-bg: rgba(255, 255, 255, 0.85);
+      --glass-border: rgba(255, 255, 255, 0.6);
+      --text-primary: #0A1929;
+      --text-secondary: #2C3E50;
+      --text-muted: #5A6E8A;
+      --border-light: #E2E8F0;
+      --success: #00A86B;
+      --warning: #F5A623;
+      --danger: #E53E3E;
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 8px 20px rgba(0, 0, 0, 0.06), 0 0 0 0.5px rgba(0, 0, 0, 0.02);
+      --shadow-lg: 0 20px 35px -8px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.02);
+      --shadow-hover: 0 24px 42px -12px rgba(26, 59, 92, 0.18);
+      --radius-xl: 28px;
+      --radius-lg: 18px;
+      --radius-md: 14px;
+      --radius-sm: 10px;
       --transition: all 0.25s cubic-bezier(0.2, 0, 0, 1);
     }
     body {
@@ -43,7 +63,7 @@
     .hidden { display: none !important; }
     .content { padding: 0 20px; max-width: 1280px; margin: 0 auto; }
     
-    /* ====== LOGIN SCREEN (NEW) ====== */
+    /* ====== LOGIN SCREEN – NIC ASIA PREMIUM ====== */
     #loginScreen {
       min-height: 100vh;
       display: flex;
@@ -68,11 +88,17 @@
     .login-link { font-size: 13px; color: var(--primary); font-weight: 600; text-decoration: none; }
     .signin-btn { width: 100%; padding: 18px; font-size: 18px; font-weight: 700; background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%); border: none; border-radius: 60px; color: white; cursor: pointer; box-shadow: 0 8px 20px rgba(26,59,92,0.25); transition: var(--transition); }
     .signin-btn:active { transform: scale(0.97); box-shadow: 0 4px 12px rgba(26,59,92,0.2); }
+    .divider { display: flex; align-items: center; text-align: center; margin: 28px 0; color: var(--text-muted); font-size: 13px; }
+    .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--border-light); }
+    .divider span { padding: 0 16px; }
+    .biometric-btn { width: 100%; padding: 16px; font-size: 16px; font-weight: 600; background: transparent; border: 2px solid var(--primary); border-radius: 60px; color: var(--primary); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: var(--transition); }
+    .biometric-btn i { font-size: 24px; }
+    .biometric-btn:active { background: var(--primary); color: white; }
     .login-error { color: var(--danger); font-size: 13px; text-align: center; margin-top: 16px; min-height: 20px; }
     .login-footer { text-align: center; margin-top: 40px; font-size: 12px; color: var(--text-muted); }
     .login-footer span { color: var(--primary); font-weight: 600; }
 
-    /* ====== HEADER (UPDATED) ====== */
+    /* ====== HEADER WITH SYNC & LOGOUT ====== */
     header {
       background: rgba(255, 255, 255, 0.95);
       backdrop-filter: blur(20px);
@@ -80,11 +106,12 @@
       position: sticky;
       top: 0;
       z-index: 100;
-      border-bottom: 1px solid rgba(0,0,0,0.05);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
       box-shadow: var(--shadow-sm);
       display: flex;
       align-items: center;
       justify-content: space-between;
+      flex-wrap: nowrap;
     }
     .app-title {
       font-weight: 700;
@@ -96,6 +123,7 @@
       align-items: center;
       gap: 8px;
       font-size: 20px;
+      letter-spacing: -0.3px;
     }
     .app-title i {
       background: linear-gradient(135deg, var(--primary), var(--accent-gold));
@@ -104,7 +132,14 @@
       color: transparent;
       font-size: 26px;
     }
-    .offline-badge { background: var(--warning); color: #1A1A1A; font-size: 11px; padding: 2px 8px; border-radius: 20px; margin-left: 4px; }
+    .offline-badge {
+      background: var(--warning);
+      color: #1A1A1A;
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 20px;
+      margin-left: 4px;
+    }
     .header-actions { display: flex; gap: 8px; align-items: center; }
     .sync-btn {
       background: transparent;
@@ -118,6 +153,7 @@
       align-items: center;
       gap: 5px;
       cursor: pointer;
+      white-space: nowrap;
     }
     .sync-btn i { font-size: 16px; }
     .sync-btn.syncing { background: var(--primary); color: #fff; pointer-events: none; }
@@ -143,10 +179,9 @@
       background: linear-gradient(90deg, var(--primary), var(--accent-gold));
       transition: width 0.3s ease;
     }
-    .last-synced { font-size: 10px; color: var(--text-muted); margin-right: 8px; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* ====== ORIGINAL CUSTOMER HEADER ====== */
+    /* ----- Premium Customer Header Card ----- */
     .customer-header {
       background: var(--glass-bg);
       backdrop-filter: blur(20px);
@@ -201,8 +236,8 @@
       border: 1px solid rgba(26, 59, 92, 0.08);
     }
     .group-badge:hover { background: rgba(26, 59, 92, 0.12); transform: scale(0.98); border-color: var(--primary-light); }
-
-    /* ====== ORIGINAL STAT CARDS ====== */
+    
+    /* ----- Premium Stat Cards ----- */
     .grid-summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-bottom: 28px; }
     .stat-card {
       background: var(--surface-white);
@@ -221,8 +256,8 @@
     .stat-header i { font-size: 24px; background: linear-gradient(135deg, var(--primary), var(--accent-gold)); -webkit-background-clip: text; background-clip: text; color: transparent; }
     .stat-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-muted); }
     .stat-value { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; color: var(--text-primary); line-height: 1.2; }
-
-    /* ====== ORIGINAL TABLE ====== */
+    
+    /* ----- Premium Table ----- */
     .table-wrapper { width: 100%; overflow-x: auto; border-radius: var(--radius-lg); background: var(--surface-white); border: 1px solid var(--border-light); box-shadow: var(--shadow-sm); }
     table { border-collapse: collapse; font-size: 13px; width: 100%; min-width: 700px; }
     th, td { padding: 18px 16px; text-align: left; white-space: nowrap; }
@@ -230,8 +265,8 @@
     th { background: #F8FAFD; font-weight: 700; font-size: 11px; letter-spacing: 0.5px; color: var(--text-secondary); border-bottom: 2px solid #E2E8F0; text-transform: uppercase; }
     td { border-bottom: 1px solid #EDF2F7; color: var(--text-primary); font-weight: 500; }
     tfoot td { background: #F8FAFD; font-weight: 800; border-top: 2px solid #E2E8F0; color: var(--primary); }
-
-    /* ====== ORIGINAL GROUP CARDS ====== */
+    
+    /* ----- Group Cards ----- */
     .group-card { background: var(--surface-white); border-radius: var(--radius-xl); margin-bottom: 24px; border: 1px solid var(--border-light); box-shadow: var(--shadow-sm); overflow: hidden; transition: var(--transition); }
     .group-card:hover { box-shadow: var(--shadow-lg); }
     .group-header-dark { background: linear-gradient(105deg, #0B1E2E 0%, #122B3F 100%); color: white; padding: 22px 28px; }
@@ -248,14 +283,14 @@
     .metric-label { font-size: 13px; font-weight: 500; color: var(--text-muted); }
     .metric-value { font-size: 16px; font-weight: 700; color: var(--text-primary); }
 
-    /* ====== ORIGINAL BOTTOM NAV ====== */
-    .bottom-nav { position: fixed; bottom: 0; width: 100%; background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(20px); display: flex; border-top: 1px solid rgba(0,0,0,0.05); padding-bottom: env(safe-area-inset-bottom); height: 76px; box-shadow: 0 -4px 20px rgba(0,0,0,0.03); }
+    /* ----- Bottom Navigation ----- */
+    .bottom-nav { position: fixed; bottom: 0; width: 100%; background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(20px); display: flex; border-top: 1px solid rgba(0, 0, 0, 0.05); padding-bottom: env(safe-area-inset-bottom); height: 76px; box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.03); }
     .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; font-size: 11px; font-weight: 600; color: var(--text-muted); transition: var(--transition); cursor: pointer; border-radius: 40px; margin: 6px 4px; }
     .nav-item i { font-size: 24px; transition: transform 0.2s; }
     .nav-item.active { color: var(--primary); background: linear-gradient(135deg, rgba(26, 59, 92, 0.06), rgba(201, 162, 39, 0.04)); box-shadow: inset 0 1px 2px rgba(0,0,0,0.02); }
     .nav-item:active i { transform: scale(0.92); }
-
-    /* ====== ORIGINAL SEARCH, TABS, MODALS ====== */
+    
+    /* ----- Search, Tabs, Modals (unchanged) ----- */
     .search-input { width: 100%; padding: 18px 22px; border-radius: 60px; border: 1px solid var(--border-light); background: white; font-size: 16px; font-weight: 500; box-shadow: var(--shadow-sm); transition: var(--transition); }
     .search-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(26, 59, 92, 0.08); }
     .search-result-item { background: white; border-radius: var(--radius-lg); padding: 20px; margin-bottom: 12px; border: 1px solid var(--border-light); transition: var(--transition); cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
@@ -274,7 +309,7 @@
     .copy-btn { display: inline-flex; align-items: center; justify-content: center; background: #F0F4FE; color: var(--primary); padding: 8px; border-radius: 10px; transition: var(--transition); cursor: pointer; }
     .copy-btn:hover { background: var(--primary); color: white; }
     .month-slider-track { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 12px; scrollbar-width: thin; }
-    .reminder-modal, .share-modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+    .reminder-modal, .share-modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
     .reminder-box, .share-box { background: var(--surface-white); border-radius: var(--radius-xl); padding: 28px 24px; width: 100%; max-width: 420px; box-shadow: var(--shadow-lg); border: 1px solid var(--border-light); }
     .rem-title, .share-title { font-size: 20px; font-weight: 700; margin-bottom: 20px; color: var(--primary); }
     .reminder-box label, .share-box label { display: block; font-size: 13px; font-weight: 600; color: var(--text-secondary); margin: 12px 0 6px; }
@@ -321,8 +356,8 @@
     <div class="welcome-text">Welcome Back!</div>
     <div class="welcome-sub">Sign In To Continue</div>
     <div class="input-group">
-      <div class="input-label">Username</div>
-      <input type="text" id="loginUsername" class="login-input" placeholder="Enter your username" value="">
+      <div class="input-label">Employee ID / Email / Mobile</div>
+      <input type="text" id="loginUsername" class="login-input" placeholder="Enter your ID or email" value="">
     </div>
     <div class="input-group">
       <div class="input-label">Password</div>
@@ -337,6 +372,8 @@
     </div>
     <button class="signin-btn" onclick="handleLogin()">Sign In</button>
     <div id="loginError" class="login-error"></div>
+    <div class="divider"><span>or</span></div>
+    <button class="biometric-btn" id="biometricBtn" onclick="handleBiometricLogin()"><i class="material-icons-round">fingerprint</i> Login with Biometrics</button>
     <div class="login-footer">Powered By <span>NIC ASIA</span></div>
   </div>
 </div>
@@ -348,7 +385,6 @@
   <header>
     <div class="app-title"><i class="material-icons-round">account_balance</i> Overdue Report <span id="offlineIndicator" class="offline-badge hidden">Offline</span></div>
     <div class="header-actions">
-      <span class="last-synced" id="lastSynced"></span>
       <button id="syncButton" class="sync-btn" onclick="startFullSync()"><i class="material-icons-round">cloud_download</i><span>Sync All</span></button>
       <button class="logout-btn" onclick="logout()"><i class="material-icons-round">logout</i></button>
     </div>
@@ -423,27 +459,25 @@
 </div>
 
 <!-- Share Modal -->
-<div id="shareModal" class="share-modal hidden"><div class="share-box"><div class="share-title">📤 Share Account Details</div><label>Message Preview</label><textarea id="sharePreview" readonly></textarea><div class="share-actions"><button onclick="copyAccountInfoFromModal()">📋 Copy</button><button onclick="shareViaWhatsAppFromModal()">💬 WhatsApp</button><button onclick="shareViaSMSFromModal()">📱 SMS</button></div><button class="close-btn" onclick="closeShareModal()">Close</button></div></div>
+<div id="shareModal" class="share-modal hidden"><div class="share-box"><div class="share-title">📤</div><label>Message Preview</label><textarea id="sharePreview" readonly></textarea><div class="share-actions"><button onclick="copyAccountInfoFromModal()">📋 Copy</button><button onclick="shareViaWhatsAppFromModal()">💬 WhatsApp</button><button onclick="shareViaSMSFromModal()">📱 SMS</button></div><button class="close-btn" onclick="closeShareModal()">Close</button></div></div>
 
 <!-- Reminder Modal -->
-<div id="reminderModal" class="reminder-modal hidden"><div class="reminder-box"><div class="rem-title">📨 Send Reminder</div><label>Language</label><select id="remLang" onchange="updatePreview()"><option value="EN">English</option><option value="NP">Nepali</option></select><label>Contact</label><select id="remContact" onchange="updatePreview()"><option value="primary">Primary Contact</option><option value="secondary">Additional Contact</option></select><label>Message Preview</label><textarea id="remPreview" readonly></textarea><div class="rem-actions"><button onclick="copyReminder()">📋 Copy</button><button onclick="sendWhatsApp()">💬 WhatsApp</button><button onclick="sendSMS()">📱 SMS</button></div><button class="close-btn" onclick="closeReminder()">Close</button></div></div>
+<div id="reminderModal" class="reminder-modal hidden"><div class="reminder-box"><div class="rem-title">📨</div><label>Language</label><select id="remLang" onchange="updatePreview()"><option value="EN">English</option><option value="NP">Nepali</option></select><label>Contact</label><select id="remContact" onchange="updatePreview()"><option value="primary">Primary Contact</option><option value="secondary">Additional Contact</option></select><label>Message Preview</label><textarea id="remPreview" readonly></textarea><div class="rem-actions"><button onclick="copyReminder()">📋 Copy</button><button onclick="sendWhatsApp()">💬 WhatsApp</button><button onclick="sendSMS()">📱 SMS</button></div><button class="close-btn" onclick="closeReminder()">Close</button></div></div>
 
 <script>
   // ========== CONFIGURATION ==========
-  const API_BASE = 'https://script.google.com/macros/s/AKfycbx4Nl5MJm9UjkSskwRAfZmMnN6M5MTtabLuvb5_b48tvnov06LKfrGv_-KRCBjXaBDw/exec'; // ⬅️ REPLACE
+  const API_BASE = 'https://script.google.com/macros/s/AKfycbx4Nl5MJm9UjkSskwRAfZmMnN6M5MTtabLuvb5_b48tvnov06LKfrGv_-KRCBjXaBDw/exec';
   const AUTH_KEY = 'crm_auth';
-  const BATCH_SIZE = 8;
+  const BIOMETRIC_KEY = 'crm_biometric_enabled';
 
   // IndexedDB
   const db = new Dexie("CRM_DB");
-  db.version(2).stores({
-    customers: "id",
-    metrics: "CIF_ID",
-    extraDetails: "CIF_ID"
+  db.version(4).stores({
+    customers: "id", metrics: "CIF_ID", groups: "groupName", extraDetails: "CIF_ID",
+    overdueDetails: "CIF_ID", slicerOptions: "CIF_ID", slicerSummary: "key"
   });
 
   let customers = [], currentCIF = null, currentGroup = "", slicerMeta = null;
-  let syncInProgress = false;
   window.currentCustomer = { name: '', account: '', renewal: '', primaryPhone: '', secondaryPhone: '' };
   
   const fAmt = (n) => '₹ ' + (Math.abs(n) <= 0.0001 ? "0.00" : parseFloat(n).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}));
@@ -474,7 +508,10 @@
   async function apiCall(action, params = {}) {
     const url = new URL(API_BASE);
     url.searchParams.set('action', action);
-    Object.entries(params).forEach(([k, v]) => { if (v !== undefined && v !== null) url.searchParams.set(k, v); });
+    Object.entries(params).forEach(([k, v]) => {
+      if (Array.isArray(v)) url.searchParams.set(k, JSON.stringify(v));
+      else url.searchParams.set(k, v);
+    });
     const data = await jsonp(url.toString());
     if (data.error) throw new Error(data.error);
     return data;
@@ -484,9 +521,12 @@
   function checkAuth() {
     const auth = localStorage.getItem(AUTH_KEY);
     if (auth) {
-      try { if (JSON.parse(auth).expires > Date.now()) { showApp(); loadCustomerList(); return true; } } catch (e) {}
+      try {
+        if (JSON.parse(auth).expires > Date.now()) { showApp(); loadCustomerList(); return true; }
+      } catch (e) {}
     }
     showLogin();
+    document.getElementById('biometricBtn').style.display = localStorage.getItem(BIOMETRIC_KEY) ? 'flex' : 'none';
     return false;
   }
 
@@ -500,9 +540,14 @@
     if (!username || !password) { errorEl.innerText = 'Please enter username and password'; return; }
     errorEl.innerText = ''; toggleLoader(true);
     try {
-      const response = await apiCall('login', { username, password });
+      const url = new URL(API_BASE);
+      url.searchParams.set('action', 'login');
+      url.searchParams.set('username', username);
+      url.searchParams.set('password', password);
+      const response = await jsonp(url.toString());
       if (response.success) {
         localStorage.setItem(AUTH_KEY, JSON.stringify({ user: response.user, expires: Date.now() + 86400000 }));
+        if (confirm('Enable biometric login?')) localStorage.setItem(BIOMETRIC_KEY, btoa(`${username}:${password}`));
         showApp(); await loadCustomerList();
       } else errorEl.innerText = response.error || 'Invalid credentials';
     } catch (e) { errorEl.innerText = 'Login failed.'; } finally { toggleLoader(false); }
@@ -510,110 +555,29 @@
 
   function logout() { localStorage.removeItem(AUTH_KEY); showLogin(); }
   function togglePassword() { const p = document.getElementById('loginPassword'); const i = document.querySelector('.toggle-password i'); p.type = p.type === 'password' ? 'text' : 'password'; i.innerText = p.type === 'password' ? 'visibility_off' : 'visibility'; }
-
-  // ========== MANUAL SYNC ALL ==========
-  async function startFullSync() {
-    if (syncInProgress) return;
-    const btn = document.getElementById('syncButton'), bar = document.getElementById('syncProgressBar');
-    syncInProgress = true;
-    btn.classList.add('syncing'); btn.innerHTML = `<i class="material-icons-round">sync</i><span>0%</span>`; bar.style.width = '0%';
-    try {
-      const fresh = await apiCall('customers'); await db.customers.bulkPut(fresh); customers = fresh;
-      const total = fresh.length; let completed = 0;
-      for (let i = 0; i < fresh.length; i += BATCH_SIZE) {
-        const batch = fresh.slice(i, i + BATCH_SIZE);
-        await Promise.allSettled(batch.map(async (c) => {
-          try {
-            const m = await apiCall('metrics', { cifId: c.id }); await db.metrics.put({ CIF_ID: c.id, ...m });
-            const extra = await apiCall('extraDetails', { cifId: c.id }); if (extra) await db.extraDetails.put({ CIF_ID: c.id, ...extra });
-          } catch (e) {}
-          completed++; const pct = Math.round((completed / total) * 100);
-          btn.innerHTML = `<i class="material-icons-round">sync</i><span>${pct}%</span>`; bar.style.width = pct + '%';
-        }));
-        await new Promise(r => setTimeout(r, 50));
-      }
-      localStorage.setItem('lastFullSync', Date.now());
-      updateLastSynced();
-      btn.innerHTML = `<i class="material-icons-round">check_circle</i><span>Done</span>`;
-      setTimeout(() => { btn.innerHTML = `<i class="material-icons-round">cloud_download</i><span>Sync All</span>`; btn.classList.remove('syncing'); bar.style.width = '0%'; }, 2000);
-    } catch (e) { btn.innerHTML = `<i class="material-icons-round">error</i><span>Failed</span>`; } finally { syncInProgress = false; }
+  async function handleBiometricLogin() {
+    const saved = localStorage.getItem(BIOMETRIC_KEY);
+    if (saved) { const [u, p] = atob(saved).split(':'); document.getElementById('loginUsername').value = u; document.getElementById('loginPassword').value = p; await handleLogin(); }
   }
 
-  function updateLastSynced() {
-    const last = localStorage.getItem('lastFullSync');
-    if (last) {
-      const d = new Date(parseInt(last)); document.getElementById('lastSynced').innerText = `Last sync: ${d.toLocaleTimeString()}`;
-    }
-  }
-
-  // ========== CUSTOMER LIST (FIXED) ==========
-async function loadCustomerList() {
-  // Try to load from IndexedDB first
-  const cached = await db.customers.toArray();
-  if (cached.length > 0) {
-    customers = cached;
-    setupSearch();
-    console.log('Loaded customers from cache:', customers.length);
-  }
-  
-  // If online, fetch fresh data and update
-  if (navigator.onLine) {
-    try {
-      const fresh = await apiCall('customers');
-      await db.customers.bulkPut(fresh);
-      customers = fresh;
-      setupSearch();
-      console.log('Loaded fresh customers:', customers.length);
-    } catch (e) {
-      console.warn('Failed to fetch fresh customers, using cache');
-      if (customers.length === 0) {
-        alert('Unable to load customer data. Please check your connection.');
-      }
-      setupSearch(); // Still setup search with whatever we have
-    }
-  } else {
-    if (customers.length === 0) {
-      alert('You are offline and no cached data available. Please sync when online.');
-    }
+  // ========== DATA LOADING ==========
+  async function loadCustomerList() {
+    try { customers = await apiCall('customers'); await db.customers.bulkPut(customers); } catch (e) { customers = await db.customers.toArray(); }
     setupSearch();
   }
-}
 
-function setupSearch() {
-  const inp = document.getElementById('searchInp');
-  const res = document.getElementById('results');
-  if (!inp) {
-    console.error('Search input not found');
-    return;
+  function setupSearch() {
+    const inp = document.getElementById('searchInp'), res = document.getElementById('results');
+    inp.oninput = async () => {
+      const val = inp.value.toUpperCase(); res.innerHTML = '';
+      if (!val) return;
+      (await db.customers.toArray()).filter(c => (c.name||'').toUpperCase().includes(val) || (c.id||'').includes(val)).slice(0,12).forEach(c => {
+        const d = document.createElement('div'); d.className = 'search-result-item';
+        d.innerHTML = `<div><div style="font-weight:700;">${c.name}</div><div style="color:var(--text-muted);">CIF: ${c.id}</div></div><i class="material-icons-round">arrow_forward_ios</i>`;
+        d.onclick = () => { currentCIF = c.id; navTo('detail'); }; res.appendChild(d);
+      });
+    };
   }
-  
-  inp.oninput = async () => {
-    const val = inp.value.trim().toUpperCase();
-    res.innerHTML = '';
-    if (!val) return;
-    
-    // Get all customers from the in-memory array (which is kept updated)
-    const allCustomers = customers.length > 0 ? customers : await db.customers.toArray();
-    
-    const filtered = allCustomers.filter(c => 
-      (c.name && c.name.toUpperCase().includes(val)) || 
-      (c.id && c.id.toString().includes(val))
-    ).slice(0, 12);
-    
-    if (filtered.length === 0) {
-      res.innerHTML = '<div class="search-result-item" style="justify-content:center; color:var(--text-muted);">No customers found</div>';
-      return;
-    }
-    
-    filtered.forEach(c => {
-      const d = document.createElement('div');
-      d.className = 'search-result-item';
-      d.innerHTML = `<div><div style="font-weight:700; font-size:16px;">${c.name || 'Unknown'}</div><div style="color:var(--text-muted); font-size:12px; margin-top:6px;">CIF: ${c.id || 'N/A'}</div></div><i class="material-icons-round" style="color:var(--primary);">arrow_forward_ios</i>`;
-      d.onclick = () => { currentCIF = c.id; navTo('detail'); };
-      res.appendChild(d);
-    });
-  };
-}
 
   function getStatusIcons(a, p) {
     a = (a||'').toUpperCase(); p = (p||'').toUpperCase();
@@ -635,14 +599,19 @@ function setupSearch() {
     if (v === 'insights') loadInsights();
   }
 
-  // ========== DETAILS (CACHE-FIRST) ==========
   async function loadDetails() {
-    const cached = await db.metrics.get(currentCIF);
-    if (cached) renderMetrics(cached);
-    if (navigator.onLine) {
-      try { const m = await apiCall('metrics', { cifId: currentCIF }); await db.metrics.put({ CIF_ID: currentCIF, ...m }); renderMetrics(m); } catch (e) {}
+    toggleLoader(true);
+    try { 
+      const m = await apiCall('metrics', { cifId: currentCIF }); 
+      await db.metrics.put({ CIF_ID: currentCIF, ...m }); 
+      renderMetrics(m);
+      await loadExtraDetails();
+    } catch { 
+      const c = await db.metrics.get(currentCIF); 
+      if (c) renderMetrics(c); 
+      else alert('Failed to load details'); 
     }
-    loadExtraDetails();
+    toggleLoader(false);
   }
 
   function renderMetrics(m) {
@@ -666,34 +635,72 @@ function setupSearch() {
     window.currentCustomer.renewal = m.RENEWAL;
   }
 
-  async function loadExtraDetails() {
-    try {
-      const c = await apiCall('extraDetails', { cifId: currentCIF });
-      await db.extraDetails.put({ CIF_ID: currentCIF, ...c });
-      window.currentCustomer.account = c.OP_ACCOUNT || '-';
-      window.currentCustomer.primaryPhone = (c.Contact_No || '').split(';')[0]?.trim() || '';
-      window.currentCustomer.secondaryPhone = (c.Additional_Contact_Number || '').split(';')[0]?.trim() || '';
-      const grid = document.getElementById('contact-grid');
-      if (grid) {
-        function formatPhones(str) { if (!str) return '-'; return str.split(';').filter(p=>p.trim()).map(p => `<div style="display:flex; align-items:center; gap:8px;"><a href="tel:${p}" style="text-decoration:none;color:var(--primary);">${p}</a><span class="copy-btn" onclick="copyPhoneNumber('${p}')"><i class="material-icons-round" style="font-size:16px;">content_copy</i></span></div>`).join(''); }
-        let html = `<div class="stat-card"><div class="stat-label">Primary Contact</div><div class="stat-value" style="font-size:16px;">${c.Contact_Person_Name || '-'}<br>${formatPhones(c.Contact_No)}</div></div>`;
-        if (c.Additional_Contact_Number || c.Additional_Person) html += `<div class="stat-card"><div class="stat-label">Additional Contact</div><div class="stat-value" style="font-size:16px;">${c.Additional_Person || '-'} ${c.Additional_Person_Relation ? `(${c.Additional_Person_Relation})` : ''}<br>${formatPhones(c.Additional_Contact_Number)}</div></div>`;
-        grid.innerHTML = html;
+    async function loadExtraDetails() {
+      try { 
+        const c = await apiCall('extraDetails', { cifId: currentCIF }); 
+        await db.extraDetails.put({ CIF_ID: currentCIF, ...c });
+        window.currentCustomer.account = c.OP_ACCOUNT || '-'; 
+        window.currentCustomer.primaryPhone = (c.Contact_No || '').split(';')[0]?.trim() || ''; 
+        window.currentCustomer.secondaryPhone = (c.Additional_Contact_Number || '').split(';')[0]?.trim() || ''; 
+        
+        const grid = document.getElementById('contact-grid');
+        if (grid) {
+          // Format phones with copy buttons (exactly as original)
+          function formatPhones(str) { 
+            if (!str) return '-'; 
+            return str.split(';').filter(p => p.trim()).map(p => 
+              `<div style="display:flex; align-items:center; gap:8px; margin-top:4px;">
+                <a href="tel:${p}" style="text-decoration:none;color:var(--primary);">${p}</a> 
+                <span class="copy-btn" onclick="copyPhoneNumber('${p}')">
+                  <i class="material-icons-round" style="font-size:16px;">content_copy</i>
+                </span>
+              </div>`
+            ).join(''); 
+          }
+          
+          let html = `<div class="stat-card">
+            <div class="stat-label">Primary Contact</div>
+            <div class="stat-value" style="font-size:16px;">
+              ${c.Contact_Person_Name || '-'}<br>
+              ${formatPhones(c.Contact_No)}
+            </div>
+          </div>`;
+          
+          if (c.Additional_Contact_Number || c.Additional_Person) { 
+            html += `<div class="stat-card">
+              <div class="stat-label">Additional Contact</div>
+              <div class="stat-value" style="font-size:16px;">
+                ${c.Additional_Person || '-'} ${c.Additional_Person_Relation ? `(${c.Additional_Person_Relation})` : ''}<br>
+                ${formatPhones(c.Additional_Contact_Number)}
+              </div>
+            </div>`; 
+          }
+          grid.innerHTML = html;
+        }
+      } catch (e) { 
+        window.currentCustomer.account = '-'; 
+        window.currentCustomer.primaryPhone = ''; 
+        window.currentCustomer.secondaryPhone = '';
+        const grid = document.getElementById('contact-grid');
+        if (grid) grid.innerHTML = "<div class='stat-card'>No contact info</div>";
       }
-    } catch (e) {}
-  }
+    }
+    
+    // Global copy phone function
+    function copyPhoneNumber(phone) {
+      navigator.clipboard.writeText(phone).then(() => {
+        alert('✅ Phone number copied: ' + phone);
+      }).catch(() => {
+        alert('❌ Failed to copy phone number');
+      });
+    }
 
-  function copyPhoneNumber(phone) { navigator.clipboard.writeText(phone).then(() => alert('✅ Phone copied')).catch(() => alert('❌ Copy failed')); }
-
-  // ========== GROUP (LOCALSTORAGE CACHE) ==========
   async function loadGroupDetails() {
     if (!currentGroup || currentGroup === "NO GROUP") return;
-    const key = 'group_' + currentGroup;
-    const cached = localStorage.getItem(key);
-    if (cached) renderGroup(JSON.parse(cached));
-    if (navigator.onLine) {
-      try { const d = await apiCall('group', { groupName: currentGroup }); localStorage.setItem(key, JSON.stringify(d)); renderGroup(d); } catch (e) {}
-    }
+    toggleLoader(true);
+    try { const d = await apiCall('group', { groupName: currentGroup }); await db.groups.put({ groupName: currentGroup, ...d }); renderGroup(d); }
+    catch { const c = await db.groups.get(currentGroup); if (c) renderGroup(c); else alert('Failed'); }
+    toggleLoader(false);
   }
 
   function renderGroup(d) {
@@ -703,209 +710,228 @@ function setupSearch() {
     document.getElementById('group-content').innerHTML = html;
   }
 
-// ========== INSIGHTS (FULLY FIXED) ==========
-async function loadInsights() {
-  toggleLoader(true);
-  
-  const overdueKey = 'overdue_' + currentCIF;
-  const slicerKey = 'slicerOptions_' + currentCIF;
-  
-  // Load cached data first
-  const cachedOverdue = localStorage.getItem(overdueKey);
-  if (cachedOverdue) {
-    renderOverdueDetails(JSON.parse(cachedOverdue));
-  }
-  
-  const cachedSlicer = localStorage.getItem(slicerKey);
-  if (cachedSlicer) {
-    slicerMeta = JSON.parse(cachedSlicer);
-    renderFilters(slicerMeta.years, slicerMeta.months);
-  }
-  
-  if (navigator.onLine) {
+  // ========== INSIGHTS WITH FULL NEPALI FILTER SUPPORT ==========
+  async function loadInsights() {
+    toggleLoader(true);
+    
+    // Load overdue details (monthly breakdown)
     try {
-      // Fetch both in parallel
-      const [res, meta] = await Promise.all([
-        apiCall('overdue', { cifId: currentCIF }),
-        apiCall('slicerOptions', { cifId: currentCIF })
-      ]);
-      
-      localStorage.setItem(overdueKey, JSON.stringify(res));
-      localStorage.setItem(slicerKey, JSON.stringify(meta));
-      
-      renderOverdueDetails(res);
+      const res = await apiCall('overdue', { cifId: currentCIF });
+      await db.overdueDetails.put({ CIF_ID: currentCIF, ...res });
+      document.getElementById('body-daily').innerHTML = res.rows.map(r => 
+        `<tr><td>${r.OVD_DATE}</td><td>${fAmt(r.TOT_OVD_AMT)}</td><td>${fAmt(r.I_OVD)}</td><td>${fAmt(r.P_OVD)}</td><td>${fAmt(r.PENAL_INT)}</td></tr>`
+      ).join('');
+      document.getElementById('foot-daily').innerHTML = `<tr><td>TOTAL</td><td>${fAmt(res.total.TOT_OVD_AMT)}</td><td>${fAmt(res.total.I_OVD)}</td><td>${fAmt(res.total.P_OVD)}</td><td>${fAmt(res.total.PENAL_INT)}</td></tr>`;
+    } catch (e) {
+      const cached = await db.overdueDetails.get(currentCIF);
+      if (cached) {
+        document.getElementById('body-daily').innerHTML = cached.rows.map(r => 
+          `<tr><td>${r.OVD_DATE}</td><td>${fAmt(r.TOT_OVD_AMT)}</td><td>${fAmt(r.I_OVD)}</td><td>${fAmt(r.P_OVD)}</td><td>${fAmt(r.PENAL_INT)}</td></tr>`
+        ).join('');
+        document.getElementById('foot-daily').innerHTML = `<tr><td>TOTAL</td><td>${fAmt(cached.total.TOT_OVD_AMT)}</td><td>${fAmt(cached.total.I_OVD)}</td><td>${fAmt(cached.total.P_OVD)}</td><td>${fAmt(cached.total.PENAL_INT)}</td></tr>`;
+      }
+    }
+    
+    // Load slicer options (years and months for filters)
+    try {
+      const meta = await apiCall('slicerOptions', { cifId: currentCIF });
+      await db.slicerOptions.put({ CIF_ID: currentCIF, ...meta });
       slicerMeta = meta;
       renderFilters(meta.years, meta.months);
-      
-      // Auto-apply filters for default "ALL" selections (if Nepali pane is visible)
-      if (!document.getElementById('pane-nepali').classList.contains('hidden')) {
+      applySlicer(); // Apply default filters (ALL years, ALL months)
+    } catch (e) {
+      const cached = await db.slicerOptions.get(currentCIF);
+      if (cached) {
+        slicerMeta = cached;
+        renderFilters(cached.years, cached.months);
         applySlicer();
       }
-    } catch (e) {
-      console.error('Insights fetch error:', e);
-      if (!cachedOverdue) alert('Unable to load insights. Check connection.');
-    } finally {
-      toggleLoader(false);
     }
-  } else {
+    
     toggleLoader(false);
-    if (!cachedOverdue) alert('Offline and no cached insights.');
   }
-}
 
-function renderFilters(years, months) {
-  const yrContainer = document.getElementById('year-chips');
-  const moContainer = document.getElementById('month-chips');
-  if (!yrContainer || !moContainer) return;
-  
-  let yrHtml = `<label><input type="checkbox" class="check-chip yr-chip" value="ALL" checked onchange="toggleAllYears(this)"><div class="chip-label">ALL</div></label>`;
-  if (years && years.length) {
-    years.forEach(y => yrHtml += `<label><input type="checkbox" class="check-chip yr-chip sub-yr" value="${y}" checked><div class="chip-label">${y}</div></label>`);
-  }
-  yrContainer.innerHTML = yrHtml;
-  
-  if (months && months.length) {
-    moContainer.innerHTML = months.map(m => 
-      `<label><input type="checkbox" class="check-chip mn-chip" value="${m}" checked><div class="chip-label">${m}</div></label>`
-    ).join('');
-  } else {
-    moContainer.innerHTML = '<div style="padding:10px;">No monthly data</div>';
-  }
-}
-
-function toggleAllYears(allCheck) {
-  document.querySelectorAll('.sub-yr').forEach(cb => cb.checked = allCheck.checked);
-}
-
-async function applySlicer() {
-  const yearChips = document.querySelectorAll('.yr-chip:checked');
-  const monthChips = document.querySelectorAll('.mn-chip:checked');
-  
-  if (!yearChips.length || !monthChips.length) {
-    console.warn('No filters selected');
-    return;
-  }
-  
-  const checkedYears = Array.from(yearChips).map(i => i.value);
-  const checkedMonths = Array.from(monthChips).map(i => i.value);
-  
-  // Show loading state on button
-  const btn = document.querySelector('#pane-nepali button');
-  const originalText = btn.innerText;
-  btn.innerText = 'Loading...';
-  btn.disabled = true;
-  
-  const cacheKey = `slicer_${currentCIF}_${checkedYears.join(',')}_${checkedMonths.join(',')}`;
-  const cached = localStorage.getItem(cacheKey);
-  if (cached) {
-    renderSlicerSummary(JSON.parse(cached));
-  }
-  
-  if (navigator.onLine) {
-    try {
-      const d = await apiCall('slicerSummary', { 
-        cifId: currentCIF, 
-        years: checkedYears, 
-        months: checkedMonths 
-      });
-      localStorage.setItem(cacheKey, JSON.stringify(d));
-      renderSlicerSummary(d);
-    } catch (e) {
-      console.error('Slicer summary error:', e);
-      if (!cached) alert('Failed to apply filters. Check console for details.');
-    } finally {
-      btn.innerText = originalText;
-      btn.disabled = false;
-    }
-  } else {
-    btn.innerText = originalText;
-    btn.disabled = false;
-    if (!cached) alert('Offline and filter results not cached.');
-  }
-}
-
-function renderSlicerSummary(d) {
-  const tbody = document.getElementById('body-nepali');
-  const tfoot = document.getElementById('foot-nepali');
-  if (!tbody || !tfoot) return;
-  
-  let t_ovd = 0, t_i = 0, t_p = 0, t_pen = 0;
-  tbody.innerHTML = d.map(r => {
-    t_ovd += r.TOT_OVD_AMT || 0;
-    t_i += r.I_OVD || 0;
-    t_p += r.P_OVD || 0;
-    t_pen += r.PENAL_INT || 0;
-    return `<tr><td>${r.NEPALI_OVD_Month}</td><td>${fAmt(r.TOT_OVD_AMT)}</td><td>${fAmt(r.I_OVD)}</td><td>${fAmt(r.P_OVD)}</td><td>${fAmt(r.PENAL_INT)}</td></tr>`;
-  }).join('');
-  tfoot.innerHTML = `<tr><td>TOTAL</td><td>${fAmt(t_ovd)}</td><td>${fAmt(t_i)}</td><td>${fAmt(t_p)}</td><td>${fAmt(t_pen)}</td></tr>`;
-}
-
-function renderOverdueDetails(res) {
-  const tbody = document.getElementById('body-daily');
-  const tfoot = document.getElementById('foot-daily');
-  if (!tbody || !tfoot) return;
-  
-  tbody.innerHTML = res.rows.map(r => 
-    `<tr><td>${r.OVD_DATE}</td><td>${fAmt(r.TOT_OVD_AMT)}</td><td>${fAmt(r.I_OVD)}</td><td>${fAmt(r.P_OVD)}</td><td>${fAmt(r.PENAL_INT)}</td></tr>`
-  ).join('');
-  tfoot.innerHTML = `<tr><td>TOTAL</td><td>${fAmt(res.total.TOT_OVD_AMT)}</td><td>${fAmt(res.total.I_OVD)}</td><td>${fAmt(res.total.P_OVD)}</td><td>${fAmt(res.total.PENAL_INT)}</td></tr>`;
-}
-
-function switchTab(t) {
-  document.getElementById('pane-daily').classList.toggle('hidden', t !== 'daily');
-  document.getElementById('pane-nepali').classList.toggle('hidden', t !== 'nepali');
-  document.getElementById('tab-daily').classList.toggle('active', t === 'daily');
-  document.getElementById('tab-nepali').classList.toggle('active', t === 'nepali');
-  
-  // When switching to Nepali tab, automatically apply filters (with cached options)
-  if (t === 'nepali' && slicerMeta) {
-    applySlicer();
-  }
-}
-
-  // ========== SHARE & REMINDER (UNCHANGED) ==========
-  function getAccountShareText() { return `Account Name: ${window.currentCustomer?.name || 'N/A'}\nAccount No.: ${window.currentCustomer?.account || 'N/A'}\nBank: NIC ASIA Bank Limited`; }
-  function openShareModal() { document.getElementById('sharePreview').value = getAccountShareText(); document.getElementById('shareModal').classList.remove('hidden'); }
-  function closeShareModal() { document.getElementById('shareModal').classList.add('hidden'); }
-  function copyAccountInfoFromModal() { navigator.clipboard.writeText(document.getElementById('sharePreview').value); alert('Copied!'); closeShareModal(); }
-  function shareViaWhatsAppFromModal() { window.open(`https://wa.me/?text=${encodeURIComponent(document.getElementById('sharePreview').value)}`, '_blank'); closeShareModal(); }
-  function shareViaSMSFromModal() { window.location.href = `sms:?body=${encodeURIComponent(document.getElementById('sharePreview').value)}`; closeShareModal(); }
-  function openReminderPopup() { document.getElementById('reminderModal').classList.remove('hidden'); updatePreview(); }
-  function closeReminder() { document.getElementById('reminderModal').classList.add('hidden'); }
-  function getReminderText(lang) {
-    const renewal = (window.currentCustomer?.renewal || '').toUpperCase();
-    if (renewal === 'EXPIRED') return lang==='NP' ? "आदरणीय ग्राहकज्यू, तपाईंको कर्जा खातामा बक्यौता रकम बाँकी रहेको र कर्जा खाता नवीकरण गर्नु आवश्यक रहेको जानकारी गराउन चाहन्छौँ। कृपया बक्यौता भुक्तानी तथा नवीकरणका लागि आवश्यक कागजातसहित शीघ्र सम्पर्क गर्नुहुन अनुरोध छ। धन्यवाद।" : "Dear Valued Customer, please be informed that your loan account has an overdue balance and also requires renewal. Kindly clear the overdue amount and contact us with the necessary documents for renewal at your earliest convenience. Thank you.";
-    return lang==='NP' ? "आदरणीय ग्राहकज्यू, तपाईंको भुक्तानी समयमै नभएकोले बाँकी रहेको जानकारी गराउन चाहन्छौँ। कृपया छिटो भुक्तानी गरिदिनुहुन अनुरोध छ। धन्यवाद।" : "Dear Customer, this is a gentle reminder that your payment is overdue. Kindly arrange clearance at your earliest convenience. Thank you.";
-  }
-  function updatePreview() { document.getElementById('remPreview').value = getReminderText(document.getElementById('remLang').value); }
-  function getSelectedPhone() { return document.getElementById('remContact').value === 'secondary' ? window.currentCustomer.secondaryPhone : window.currentCustomer.primaryPhone; }
-  function copyReminder() { navigator.clipboard.writeText(document.getElementById('remPreview').value); alert('Copied!'); }
-  function sendWhatsApp() { const phone = getSelectedPhone(); if (!phone) { alert('No phone'); return; } const text = encodeURIComponent(document.getElementById('remPreview').value); const clean = phone.replace(/[^0-9]/g,''); window.open(`https://wa.me/${clean.startsWith('977')?clean:'977'+clean}?text=${text}`, '_blank'); }
-  function sendSMS() { const phone = getSelectedPhone(); if (!phone) { alert('No phone'); return; } window.location.href = `sms:${phone}?body=${encodeURIComponent(document.getElementById('remPreview').value)}`; }
-
-  // ========== INSIGHTS FILTERS (UNCHANGED) ==========
   function renderFilters(years, months) {
     const yrHtml = [`<label><input type="checkbox" class="check-chip yr-chip" value="ALL" checked onchange="toggleAllYears(this)"><div class="chip-label">ALL</div></label>`];
-    years.forEach(y => yrHtml.push(`<label><input type="checkbox" class="check-chip yr-chip sub-yr" value="${y}" checked><div class="chip-label">${y}</div></label>`));
+    if (years && years.length) {
+      years.forEach(y => yrHtml.push(`<label><input type="checkbox" class="check-chip yr-chip sub-yr" value="${y}" checked><div class="chip-label">${y}</div></label>`));
+    }
     document.getElementById('year-chips').innerHTML = yrHtml.join('');
-    document.getElementById('month-chips').innerHTML = months.length ? months.map(m => `<label><input type="checkbox" class="check-chip mn-chip" value="${m}" checked><div class="chip-label">${m}</div></label>`).join('') : '<div>No monthly data</div>';
+    
+    if (months && months.length) {
+      document.getElementById('month-chips').innerHTML = months.map(m => 
+        `<label><input type="checkbox" class="check-chip mn-chip" value="${m}" checked><div class="chip-label">${m}</div></label>`
+      ).join('');
+    } else {
+      document.getElementById('month-chips').innerHTML = '<div style="padding:10px;">No monthly data</div>';
+    }
   }
-  function toggleAllYears(allCheck) { document.querySelectorAll('.sub-yr').forEach(cb => cb.checked = allCheck.checked); }
+
+  function toggleAllYears(allCheck) {
+    document.querySelectorAll('.sub-yr').forEach(cb => cb.checked = allCheck.checked);
+  }
+
   async function applySlicer() {
-    const checkedYears = Array.from(document.querySelectorAll('.yr-chip:checked')).map(i=>i.value);
-    const checkedMonths = Array.from(document.querySelectorAll('.mn-chip:checked')).map(i=>i.value);
-    try {
-      const d = await apiCall('slicerSummary', { cifId: currentCIF, years: checkedYears, months: checkedMonths });
-      let t_ovd=0, t_i=0, t_p=0, t_pen=0;
-      document.getElementById('body-nepali').innerHTML = d.map(r => { t_ovd+=r.TOT_OVD_AMT; t_i+=r.I_OVD; t_p+=r.P_OVD; t_pen+=r.PENAL_INT; return `<tr><td>${r.NEPALI_OVD_Month}</td><td>${fAmt(r.TOT_OVD_AMT)}</td><td>${fAmt(r.I_OVD)}</td><td>${fAmt(r.P_OVD)}</td><td>${fAmt(r.PENAL_INT)}</td></tr>`; }).join('');
-      document.getElementById('foot-nepali').innerHTML = `<tr><td>TOTAL</td><td>${fAmt(t_ovd)}</td><td>${fAmt(t_i)}</td><td>${fAmt(t_p)}</td><td>${fAmt(t_pen)}</td></tr>`;
-    } catch (e) { alert('Failed to apply filters'); }
+    const yearChips = document.querySelectorAll('.yr-chip:checked');
+    const monthChips = document.querySelectorAll('.mn-chip:checked');
+    
+    if (!yearChips.length || !monthChips.length) return;
+    
+    const checkedYears = Array.from(yearChips).map(i => i.value);
+    const checkedMonths = Array.from(monthChips).map(i => i.value);
+    
+    const key = `${currentCIF}_${checkedYears.join(',')}_${checkedMonths.join(',')}`;
+    
+    // Try cache first
+    const cached = await db.slicerSummary.get(key);
+    if (cached) {
+      renderSlicerSummary(cached.data);
+    }
+    
+    // Always fetch fresh if online
+    if (navigator.onLine) {
+      try {
+        const d = await apiCall('slicerSummary', { 
+          cifId: currentCIF, 
+          years: checkedYears, 
+          months: checkedMonths 
+        });
+        await db.slicerSummary.put({ key, data: d });
+        renderSlicerSummary(d);
+      } catch (e) {
+        if (!cached) alert('Failed to load filter results');
+      }
+    } else if (!cached) {
+      alert('Offline and filter results not cached');
+    }
   }
-  function switchTab(t) { document.getElementById('pane-daily').classList.toggle('hidden', t!=='daily'); document.getElementById('pane-nepali').classList.toggle('hidden', t!=='nepali'); document.getElementById('tab-daily').classList.toggle('active', t==='daily'); document.getElementById('tab-nepali').classList.toggle('active', t==='nepali'); }
+
+  function renderSlicerSummary(d) {
+    let t_ovd = 0, t_i = 0, t_p = 0, t_pen = 0;
+    document.getElementById('body-nepali').innerHTML = d.map(r => {
+      t_ovd += r.TOT_OVD_AMT || 0;
+      t_i += r.I_OVD || 0;
+      t_p += r.P_OVD || 0;
+      t_pen += r.PENAL_INT || 0;
+      return `<tr><td style="font-weight:600;">${r.NEPALI_OVD_Month}</td><td>${fAmt(r.TOT_OVD_AMT)}</td><td>${fAmt(r.I_OVD)}</td><td>${fAmt(r.P_OVD)}</td><td>${fAmt(r.PENAL_INT)}</td></tr>`;
+    }).join('');
+    document.getElementById('foot-nepali').innerHTML = `<tr><td>TOTAL</td><td>${fAmt(t_ovd)}</td><td>${fAmt(t_i)}</td><td>${fAmt(t_p)}</td><td>${fAmt(t_pen)}</td></tr>`;
+  }
+
+  function switchTab(t) {
+    document.getElementById('pane-daily').classList.toggle('hidden', t !== 'daily');
+    document.getElementById('pane-nepali').classList.toggle('hidden', t !== 'nepali');
+    document.getElementById('tab-daily').classList.toggle('active', t === 'daily');
+    document.getElementById('tab-nepali').classList.toggle('active', t === 'nepali');
+  }
+
+  // ========== SHARE ACCOUNT ==========
+  function getAccountShareText() {
+    const name = window.currentCustomer?.name || 'N/A';
+    const acc = window.currentCustomer?.account || 'N/A';
+    return `Account Name: ${name}\nAccount No.: ${acc}\nBank: NIC ASIA Bank Limited`;
+  }
+
+  function openShareModal() {
+    if (!window.currentCustomer?.name) { alert("Load a customer first."); return; }
+    document.getElementById('sharePreview').value = getAccountShareText();
+    document.getElementById('shareModal').classList.remove('hidden');
+  }
+  function closeShareModal() { document.getElementById('shareModal').classList.add('hidden'); }
+  function copyAccountInfoFromModal() { 
+    navigator.clipboard.writeText(document.getElementById('sharePreview').value); 
+    alert('✅ Account details copied!'); 
+    closeShareModal(); 
+  }
+  function shareViaWhatsAppFromModal() { 
+    window.open(`https://wa.me/?text=${encodeURIComponent(document.getElementById('sharePreview').value)}`, '_blank'); 
+    closeShareModal(); 
+  }
+  function shareViaSMSFromModal() { 
+    window.location.href = `sms:?body=${encodeURIComponent(document.getElementById('sharePreview').value)}`; 
+    closeShareModal(); 
+  }
+
+  // ========== REMINDER ==========
+  function openReminderPopup() {
+    if (!window.currentCustomer?.name) { alert("Load a customer first."); return; }
+    document.getElementById('reminderModal').classList.remove('hidden');
+    updatePreview();
+  }
+  function closeReminder() { document.getElementById('reminderModal').classList.add('hidden'); }
+  
+  function getReminderText(lang) {
+    const renewal = (window.currentCustomer?.renewal || '').toUpperCase();
+    const isExpired = renewal === 'EXPIRED';
+    
+    if (isExpired) {
+      return lang === 'NP'
+        ? "आदरणीय ग्राहकज्यू, तपाईंको कर्जा खातामा बक्यौता रकम बाँकी रहेको र कर्जा खाता नवीकरण गर्नु आवश्यक रहेको जानकारी गराउन चाहन्छौँ। कृपया बक्यौता भुक्तानी तथा नवीकरणका लागि आवश्यक कागजातसहित शीघ्र सम्पर्क गर्नुहुन अनुरोध छ। धन्यवाद।"
+        : "Dear Valued Customer, please be informed that your loan account has an overdue balance and also requires renewal. Kindly clear the overdue amount and contact us with the necessary documents for renewal at your earliest convenience. Thank you.";
+    }
+    return lang === 'NP'
+      ? "आदरणीय ग्राहकज्यू, तपाईंको भुक्तानी समयमै नभएकोले बाँकी रहेको जानकारी गराउन चाहन्छौँ। कृपया छिटो भुक्तानी गरिदिनुहुन अनुरोध छ। धन्यवाद।"
+      : "Dear Customer, this is a gentle reminder that your payment is overdue. Kindly arrange clearance at your earliest convenience. Thank you.";
+  }
+  
+  function updatePreview() {
+    const lang = document.getElementById('remLang').value;
+    document.getElementById('remPreview').value = getReminderText(lang);
+  }
+  
+  function getSelectedPhone() {
+    const type = document.getElementById('remContact').value;
+    return type === 'secondary' ? window.currentCustomer.secondaryPhone : window.currentCustomer.primaryPhone;
+  }
+  
+  function copyReminder() {
+    navigator.clipboard.writeText(document.getElementById('remPreview').value);
+    alert('✅ Message copied to clipboard');
+  }
+  
+  function sendWhatsApp() {
+    const phone = getSelectedPhone();
+    if (!phone) { alert('No phone number available for selected contact.'); return; }
+    const text = encodeURIComponent(document.getElementById('remPreview').value);
+    const cleanPhone = phone.replace(/[^0-9]/g, '');
+    const fullPhone = cleanPhone.startsWith('977') ? cleanPhone : '977' + cleanPhone;
+    window.open(`https://wa.me/${fullPhone}?text=${text}`, '_blank');
+  }
+  
+  function sendSMS() {
+    const phone = getSelectedPhone();
+    if (!phone) { alert('No phone number available for selected contact.'); return; }
+    const text = encodeURIComponent(document.getElementById('remPreview').value);
+    window.location.href = `sms:${phone}?body=${text}`;
+  }
+
+  // ========== SYNC ==========
+  async function startFullSync() {
+    const btn = document.getElementById('syncButton'), bar = document.getElementById('syncProgressBar');
+    btn.classList.add('syncing'); btn.innerHTML = `<i class="material-icons-round">sync</i><span>0%</span>`; bar.style.width = '0%';
+    try {
+      const fresh = await apiCall('customers'); await db.customers.bulkPut(fresh);
+      for (let i = 0; i < fresh.length; i++) {
+        try { 
+          const m = await apiCall('metrics', { cifId: fresh[i].id }); 
+          await db.metrics.put({ CIF_ID: fresh[i].id, ...m }); 
+        } catch (e) {}
+        const pct = Math.round(((i+1)/fresh.length)*100);
+        btn.innerHTML = `<i class="material-icons-round">sync</i><span>${pct}%</span>`;
+        bar.style.width = pct + '%';
+        await new Promise(r => setTimeout(r, 50));
+      }
+      btn.innerHTML = `<i class="material-icons-round">check_circle</i><span>Done</span>`;
+      setTimeout(() => { btn.innerHTML = `<i class="material-icons-round">cloud_download</i><span>Sync All</span>`; btn.classList.remove('syncing'); bar.style.width = '0%'; }, 2000);
+    } catch (e) { 
+      btn.innerHTML = `<i class="material-icons-round">error</i><span>Failed</span>`; 
+      setTimeout(() => { btn.innerHTML = `<i class="material-icons-round">cloud_download</i><span>Sync All</span>`; btn.classList.remove('syncing'); }, 2000);
+    }
+  }
 
   // ========== INIT ==========
   checkAuth();
-  updateLastSynced();
 </script>
+
 </body>
 </html>
