@@ -2,12 +2,12 @@
   "name": "Behind Schedule",
   "short_name": "Behind Schedule",
   "description": "Customer overdue View system",
-  "start_url": "/",
+  "start_url": "./",
   "display": "standalone",
   "theme_color": "#1A3B5C",
   "background_color": "#F4F7FC",
   "orientation": "portrait",
-  "scope": "/",
+  "scope": "./",
   "icons": [
     {
       "src": "icon.png",
