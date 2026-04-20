@@ -812,7 +812,7 @@
     }
 
     /* ----- NEW: Category Table & Filters ----- */
-    .cat-chip {
+    .filter-chip {
       background: #F0F4FA;
       border: 1px solid transparent;
       padding: 10px 20px;
@@ -823,19 +823,16 @@
       cursor: pointer;
       transition: var(--transition);
     }
-    .cat-chip.active {
+    .filter-chip.active {
       background: var(--primary);
       color: white;
       box-shadow: 0 4px 12px rgba(26, 59, 92, 0.3);
     }
-    .filter-select {
-      padding: 10px 16px;
-      border-radius: 40px;
-      border: 1px solid var(--border-light);
-      background: white;
-      font-weight: 500;
-      font-size: 14px;
-      color: var(--text-primary);
+    .filter-label {
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-right: 12px;
     }
   </style>
 </head>
@@ -858,23 +855,23 @@
     </div>
     <div id="results" class="content"></div>
 
-    <!-- ===== NEW: Relationship & Category Slicer ===== -->
+    <!-- ===== NEW: Relationship & Category Slicer (Both as Chips) ===== -->
     <div style="padding:0 20px 8px 20px;">
-      <label style="font-weight:600; font-size:13px; color:var(--text-secondary); margin-right:12px;">Relationship:</label>
-      <select id="relationshipFilter" class="filter-select">
-        <option value="ALL" selected>All</option>
-        <option value="Branch">Branch</option>
-        <option value="LRD">LRD</option>
-      </select>
+      <span class="filter-label">Relationship:</span>
+      <div style="display:inline-flex; flex-wrap:wrap; gap:8px;">
+        <button class="filter-chip rel-chip active" data-rel="ALL">All</button>
+        <button class="filter-chip rel-chip" data-rel="Branch">Branch</button>
+        <button class="filter-chip rel-chip" data-rel="LRD">LRD</button>
+      </div>
     </div>
 
     <div style="padding:8px 20px 16px 20px; display:flex; flex-wrap:wrap; gap:8px;">
-      <button class="cat-chip active" data-cat="ALL">ALL</button>
-      <button class="cat-chip" data-cat="NPA">NPA</button>
-      <button class="cat-chip" data-cat="WL">WL</button>
-      <button class="cat-chip" data-cat="PWL">PWL</button>
-      <button class="cat-chip" data-cat="PNPA">PNPA</button>
-      <button class="cat-chip" data-cat="PASS">Pass</button>
+      <button class="filter-chip cat-chip active" data-cat="ALL">ALL</button>
+      <button class="filter-chip cat-chip" data-cat="NPA">NPA</button>
+      <button class="filter-chip cat-chip" data-cat="WL">WL</button>
+      <button class="filter-chip cat-chip" data-cat="PWL">PWL</button>
+      <button class="filter-chip cat-chip" data-cat="PNPA">PNPA</button>
+      <button class="filter-chip cat-chip" data-cat="PASS">Pass</button>
     </div>
 
     <div class="table-wrapper" style="margin:0 20px 20px 20px; width:auto;">
@@ -1584,7 +1581,8 @@
     document.getElementById('tab-nepali').classList.toggle('active', t === 'nepali'); 
   }
 
-  // ========== NEW: CATEGORY TABLE WITH RELATIONSHIP FILTER ==========
+  // ========== NEW: CATEGORY TABLE WITH RELATIONSHIP & CATEGORY CHIPS ==========
+  let currentRelationship = 'ALL';
   let currentCategory = 'ALL';
   let currentSortBy = 'name';
   let currentSortOrder = 'asc';
@@ -1593,10 +1591,23 @@
   let totalPages = 1;
 
   function initCategoryFilters() {
-    const chips = document.querySelectorAll('.cat-chip');
-    chips.forEach(chip => {
+    // Relationship chips
+    const relChips = document.querySelectorAll('.rel-chip');
+    relChips.forEach(chip => {
       chip.addEventListener('click', () => {
-        chips.forEach(c => c.classList.remove('active'));
+        relChips.forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        currentRelationship = chip.dataset.rel;
+        currentPage = 1;
+        loadCategoryTable();
+      });
+    });
+
+    // Category chips
+    const catChips = document.querySelectorAll('.cat-chip');
+    catChips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        catChips.forEach(c => c.classList.remove('active'));
         chip.classList.add('active');
         currentCategory = chip.dataset.cat;
         currentPage = 1;
@@ -1604,21 +1615,15 @@
       });
     });
 
-    document.getElementById('relationshipFilter').addEventListener('change', () => {
-      currentPage = 1;
-      loadCategoryTable();
-    });
-
     // Initial load
     loadCategoryTable();
   }
 
   function loadCategoryTable() {
-    const relationship = document.getElementById('relationshipFilter').value;
     toggleLoader(true);
     callBackend('customersByCategory', {
       category: currentCategory,
-      relationship: relationship,
+      relationship: currentRelationship,
       sortBy: currentSortBy,
       sortOrder: currentSortOrder,
       page: currentPage,
