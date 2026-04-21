@@ -1,4 +1,5 @@
-const CACHE_NAME = 'overdue-crm-v1';
+const CACHE_NAME = 'overdue-crm-v2';
+const DATA_CACHE_NAME = 'overdue-crm-data-v1';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -25,7 +26,7 @@ self.addEventListener('activate', event => {
     caches.keys().then(cacheNames => {
       return Promise.all(
         cacheNames.map(cache => {
-          if (cache !== CACHE_NAME) {
+          if (cache !== CACHE_NAME && cache !== DATA_CACHE_NAME) {
             console.log('Deleting old cache:', cache);
             return caches.delete(cache);
           }
@@ -36,11 +37,32 @@ self.addEventListener('activate', event => {
   return self.clients.claim();
 });
 
-// Fetch event - cache-first strategy for static assets, network-first for API
+// Fetch event - optimized for data endpoint
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
   
-  // Handle Google Script API calls (network-first)
+  // Special handling for loadFullData endpoint - cache with longer duration
+  if (url.href.includes('loadFullData')) {
+    event.respondWith(
+      caches.open(DATA_CACHE_NAME).then(cache => {
+        return cache.match(event.request).then(cachedResponse => {
+          if (cachedResponse) {
+            console.log('Serving full data from cache');
+            return cachedResponse;
+          }
+          return fetch(event.request).then(networkResponse => {
+            if (networkResponse && networkResponse.status === 200) {
+              cache.put(event.request, networkResponse.clone());
+            }
+            return networkResponse;
+          });
+        });
+      })
+    );
+    return;
+  }
+  
+  // Handle Google Script API calls (network-first with cache fallback)
   if (url.href.includes('googleapis.com') || url.href.includes('script.google.com')) {
     event.respondWith(
       fetch(event.request)
@@ -75,7 +97,7 @@ self.addEventListener('fetch', event => {
         return networkResponse;
       }).catch(() => {
         // Offline fallback for HTML
-        if (event.request.headers.get('accept').includes('text/html')) {
+        if (event.request.headers.get('accept') && event.request.headers.get('accept').includes('text/html')) {
           return caches.match('/');
         }
         return new Response('Offline - content not available', {
