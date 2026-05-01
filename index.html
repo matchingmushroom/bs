@@ -1561,7 +1561,8 @@
   }
   function openGPS() {
   if (!currentCIF) { alert("Select a customer first."); return; }
-  window.location.href = '?page=gps&cifId=' + currentCIF;
+  // API_BASE is already defined as your Apps Script deployment URL
+  window.location.href = API_BASE + '?page=gps&cifId=' + currentCIF;
 }
 </script>
 </body>
