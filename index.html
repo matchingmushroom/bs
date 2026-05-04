@@ -1605,23 +1605,49 @@
     }
   }
 
-  // ========== SHARE & REMINDER (UNCHANGED) ==========
+  // ========== SHARE & REMINDER (MODIFIED - Always fetch from DB) ==========
   function getAccountShareText() {
+    // This now returns a basic template - actual data will be filled after DB fetch
     const name = window.currentCustomer?.name || 'N/A';
-    const acc = window.currentCustomer?.account || 'N/A';
-    return `Account Name: ${name}\nAccount No.: ${acc}\nBank: NIC ASIA Bank Limited`;
+    return `Account Name: ${name}\nAccount No.: Loading...\nBank: NIC ASIA Bank Limited`;
   }
 
-  function openShareModal() {
-    if (!window.currentCustomer || !window.currentCustomer.name) {
+  async function openShareModal() {
+    if (!window.currentCustomer || !window.currentCustomer.name || !currentCIF) {
       alert("Please load a customer first.");
       return;
     }
+    
+    // Show modal immediately with loading state
     document.getElementById('sharePreview').value = getAccountShareText();
     document.getElementById('shareModal').classList.remove('hidden');
+    
+    // Always fetch fresh from database
+    toggleLoader(true);
+    try {
+      const c = await callBackend('extraDetails', { cifId: currentCIF });
+      toggleLoader(false);
+      
+      if (c && c.OP_ACCOUNT) {
+        window.currentCustomer.account = c.OP_ACCOUNT;
+        const name = window.currentCustomer?.name || 'N/A';
+        const acc = c.OP_ACCOUNT;
+        document.getElementById('sharePreview').value = `Account Name: ${name}\nAccount No.: ${acc}\nBank: NIC ASIA Bank Limited`;
+      } else {
+        window.currentCustomer.account = '-';
+        const name = window.currentCustomer?.name || 'N/A';
+        document.getElementById('sharePreview').value = `Account Name: ${name}\nAccount No.: Not Available\nBank: NIC ASIA Bank Limited`;
+      }
+    } catch (err) {
+      toggleLoader(false);
+      console.error('Failed to fetch account details for sharing', err);
+      const name = window.currentCustomer?.name || 'N/A';
+      document.getElementById('sharePreview').value = `Account Name: ${name}\nAccount No.: Failed to fetch\nBank: NIC ASIA Bank Limited`;
+    }
   }
 
   function closeShareModal() { document.getElementById('shareModal').classList.add('hidden'); }
+
   function copyAccountInfoFromModal() {
     const text = document.getElementById('sharePreview').value;
     navigator.clipboard.writeText(text).then(() => {
@@ -1629,27 +1655,57 @@
       closeShareModal();
     }).catch(() => alert("❌ Failed to copy."));
   }
+
   function shareViaWhatsAppFromModal() {
     const text = encodeURIComponent(document.getElementById('sharePreview').value);
     window.open(`https://wa.me/?text=${text}`, '_blank');
     closeShareModal();
   }
+
   function shareViaSMSFromModal() {
     const text = encodeURIComponent(document.getElementById('sharePreview').value);
     window.location.href = `sms:?body=${text}`;
     closeShareModal();
   }
+
   document.getElementById('shareModal')?.addEventListener('click', function(e) { if (e.target === this) closeShareModal(); });
 
-  function openReminderPopup() {
-    if (!window.currentCustomer || !window.currentCustomer.name) {
+  async function openReminderPopup() {
+    if (!window.currentCustomer || !window.currentCustomer.name || !currentCIF) {
       alert("Please load a customer first.");
       return;
     }
+    
+    // Show modal immediately
     document.getElementById('reminderModal').classList.remove('hidden');
     updatePreview();
+    
+    // Always fetch fresh contact details from database for phone numbers
+    toggleLoader(true);
+    try {
+      const c = await callBackend('extraDetails', { cifId: currentCIF });
+      toggleLoader(false);
+      
+      if (c) {
+        window.currentCustomer.account = c.OP_ACCOUNT || '-';
+        window.currentCustomer.primaryPhone = (c.Contact_No || '').split(';')[0]?.trim() || '';
+        window.currentCustomer.secondaryPhone = (c.Additional_Contact_Number || '').split(';')[0]?.trim() || '';
+      } else {
+        window.currentCustomer.account = '-';
+        window.currentCustomer.primaryPhone = '';
+        window.currentCustomer.secondaryPhone = '';
+      }
+    } catch (err) {
+      toggleLoader(false);
+      console.error('Failed to fetch contact details for reminder', err);
+      window.currentCustomer.account = '-';
+      window.currentCustomer.primaryPhone = '';
+      window.currentCustomer.secondaryPhone = '';
+    }
   }
+
   function closeReminder() { document.getElementById('reminderModal').classList.add('hidden'); }
+
   function getReminderText(lang) {
     const renewal = (window.currentCustomer?.renewal || '').toUpperCase();
     const isExpired = renewal === 'EXPIRED';
@@ -1662,18 +1718,22 @@
       ? "आदरणीय ग्राहकज्यू, तपाईंको भुक्तानी समयमै नभएकोले बाँकी रहेको जानकारी गराउन चाहन्छौँ। कृपया छिटो भुक्तानी गरिदिनुहुन अनुरोध छ। धन्यवाद।"
       : "Dear Customer, this is a gentle reminder that your payment is overdue. Kindly arrange clearance at your earliest convenience. Thank you.";
   }
+
   function updatePreview() {
     const lang = document.getElementById('remLang')?.value || 'EN';
     document.getElementById('remPreview').value = getReminderText(lang);
   }
+
   function getSelectedPhone() {
     const type = document.getElementById('remContact')?.value || 'primary';
     return type === 'secondary' ? window.currentCustomer.secondaryPhone : window.currentCustomer.primaryPhone;
   }
+
   function copyReminder() {
     const text = document.getElementById('remPreview').value;
     navigator.clipboard.writeText(text).then(() => alert('✅ Message copied to clipboard')).catch(() => alert('❌ Copy failed'));
   }
+
   function sendWhatsApp() {
     const phone = getSelectedPhone();
     if (!phone) { alert('No phone number available for selected contact.'); return; }
@@ -1682,12 +1742,14 @@
     const fullPhone = cleanPhone.startsWith('977') ? cleanPhone : '977' + cleanPhone;
     window.open(`https://wa.me/${fullPhone}?text=${text}`, '_blank');
   }
+
   function sendSMS() {
     const phone = getSelectedPhone();
     if (!phone) { alert('No phone number available for selected contact.'); return; }
     const text = encodeURIComponent(document.getElementById('remPreview').value);
     window.location.href = `sms:${phone}?body=${text}`;
   }
+
   document.getElementById('reminderModal')?.addEventListener('click', function(e) { if (e.target === this) closeReminder(); });
 
   // ========== GROUP DETAILS ==========
@@ -1756,11 +1818,9 @@
             discontinuedChipsHTML = `
               <div style="margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--border-light);">
                 <div style="display: flex; flex-wrap: wrap; gap: 8px;">
-                  ${discontinuedAccounts.map(a => `
-                    <span class="interest-disc-chip" style="font-size: 11px; padding: 4px 10px;">
-                      ⚠️ ${a.SCHEME}
-                    </span>
-                  `).join('')}
+                  <span class="interest-disc-chip" style="font-size: 11px; padding: 4px 10px;">
+                    ⚠️ Interest Discontinued
+                  </span>
                 </div>
               </div>
             `;
