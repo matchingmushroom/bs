@@ -1801,34 +1801,6 @@
     </div>`;
     
     d.units.forEach(u => {
-      // Check if this unit has any interest discontinued accounts
-      let discontinuedChipsHTML = '';
-      const memberCifId = getCifByName(u.name);
-      
-      if (memberCifId) {
-        const memberMetrics = getCachedMetrics(memberCifId);
-        if (memberMetrics && memberMetrics.accounts) {
-          const hasDiscontinued = memberMetrics.accounts.some(a => {
-            const rateValue = parseFloat(a.FULL_RATE) || 0;
-            const schemeName = (a.SCHEME || '').trim().toUpperCase();
-            const netOvd = parseFloat(a.NET_OVD) || 0;
-            const isInterestDiscontinued = rateValue === 0 && schemeName !== 'RRGZI' && schemeName !== 'ODPBQ' && schemeName !== 'RGITQ' && schemeName !== 'NEEOD' && Math.abs(netOvd) > 0.0001;
-          });
-          
-          if (hasDiscontinued) {
-            discontinuedChipsHTML = `
-              <div style="margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--border-light);">
-                <div style="display: flex; flex-wrap: wrap; gap: 8px;">
-                  <span class="interest-disc-chip" style="font-size: 11px; padding: 4px 10px;">
-                    ⚠️ Interest Discontinued
-                  </span>
-                </div>
-              </div>
-            `;
-          }
-        }
-      }
-      
       html += `
         <div class="member-card" onclick="navigateToMember('${u.name.replace(/'/g, "\\'")}')">
           <div class="member-header">
@@ -1846,14 +1818,55 @@
             <div class="metric-item"><span class="metric-label">Min NPA Saver</span><span class="metric-value">${fAmt(u.minNpa)}</span></div>
             <div class="metric-item"><span class="metric-label">Min WL Saver</span><span class="metric-value">${fAmt(u.minWl)}</span></div>
           </div>
-          ${discontinuedChipsHTML}
+          <div id="disc-${u.name.replace(/[^a-zA-Z0-9]/g, '_')}"></div>
         </div>
       `;
     });
     
     document.getElementById('group-content').innerHTML = html;
+    
+    // Load discontinued status for each member
+    d.units.forEach(u => loadMemberDiscStatus(u.name));
   }
-
+  
+  async function loadMemberDiscStatus(memberName) {
+    const el = document.getElementById('disc-' + memberName.replace(/[^a-zA-Z0-9]/g, '_'));
+    if (!el) return;
+    
+    let cifId = getCifByName(memberName);
+    if (!cifId && navigator.onLine) {
+      try {
+        const list = await callBackend('customers');
+        cacheCustomerList(list);
+        cifId = getCifByName(memberName);
+      } catch(e) {}
+    }
+    if (!cifId) return;
+    
+    let metrics = getCachedMetrics(cifId);
+    if (!metrics && navigator.onLine) {
+      try {
+        metrics = await callBackend('metrics', { cifId: cifId });
+        if (metrics) cacheMetrics(cifId, metrics);
+      } catch(e) {}
+    }
+    
+    if (metrics && metrics.accounts) {
+      const hasDisc = metrics.accounts.some(a => {
+        const rate = parseFloat(a.FULL_RATE) || 0;
+        const scheme = (a.SCHEME || '').trim().toUpperCase();
+        const netOvd = parseFloat(a.NET_OVD) || 0;
+        return rate === 0 && scheme !== 'RRGZI' && scheme !== 'RGITQ' && Math.abs(netOvd) > 0.0001;
+      });
+      
+      if (hasDisc) {
+        el.innerHTML = `
+          <div style="margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--border-light);">
+            <span class="interest-disc-chip" style="font-size: 11px; padding: 4px 10px;">⚠️ Interest Discontinued</span>
+          </div>`;
+      }
+    }
+  }
   // ========== NAVIGATE TO MEMBER FROM GROUP VIEW ==========
   function navigateToMember(memberName) {
     // First try to find CIF from cached customer list
