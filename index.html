@@ -423,6 +423,54 @@
       line-height: 1.2;
     }
     
+    /* ----- Interest Discontinued Styles ----- */
+    .interest-discontinued-row {
+      background: #FFF8E1 !important;
+      border-left: 3px solid #F5A623;
+    }
+    
+    .interest-discontinued-row:hover {
+      background: #FFF3CD !important;
+    }
+    
+    .interest-disc-chip {
+      display: inline-block;
+      background: #F5A623;
+      color: #1A1A1A;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-size: 10px;
+      font-weight: 700;
+      margin-top: 4px;
+      white-space: nowrap;
+    }
+    
+    .interest-disc-chip-large {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #FFF8E1;
+      color: #8B6914;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid #F5A623;
+    }
+    
+    .rate-zero-badge {
+      background: #FFF8E1 !important;
+      color: #8B6914 !important;
+      border: 1px solid #F5A623 !important;
+    }
+    
+    .rate-badge {
+      background: #EEF4FF;
+      padding: 4px 12px;
+      border-radius: 30px;
+      font-weight: 600;
+    }
+    
     /* ----- Premium Table ----- */
     .table-wrapper {
       width: 100%;
@@ -1023,6 +1071,10 @@
         <div class="stat-card"><div class="stat-header"><i class="material-icons-round">savings</i><div class="stat-label">Op. Balance</div></div><div class="stat-value" id="v-op"></div></div>
         <div class="stat-card"><div class="stat-header"><i class="material-icons-round">autorenew</i><div class="stat-label">Renewal</div></div><div class="stat-value" id="v-renewal" style="font-size:20px;"></div></div>
       </div>
+      
+      <!-- Interest Discontinued Chips Section -->
+      <div id="discontinued-chips" class="hidden"></div>
+      
       <div class="section-title"><i class="material-icons-round">contacts</i> Contact Information</div>
       <div class="grid-summary" id="contact-grid"></div>
       <div class="section-title"><i class="material-icons-round">receipt_long</i> Loan Portfolio Details</div>
@@ -1485,16 +1537,59 @@
     document.getElementById('v-op').innerHTML = fAmt(m.OP_BALANCE);
     document.getElementById('v-days').innerHTML = m.MAX_OVD_DAYS;
     document.getElementById('v-renewal').innerHTML = m.RENEWAL;
-    document.querySelector("#tbl-loan tbody").innerHTML = m.accounts.map(a => `
-      <tr>
-        <td style="white-space: normal; min-width: 180px;"><b>${a.SCHEME}</b><br><span style="color:var(--text-muted); font-size:11px;">${a.ACCOUNT_NO}</span></td>
+    
+    // ========== Collect Interest Discontinued Accounts ==========
+    const discontinuedAccounts = [];
+    
+    document.querySelector("#tbl-loan tbody").innerHTML = m.accounts.map(a => {
+      const rateValue = parseFloat(a.FULL_RATE) || 0;
+      const schemeName = (a.SCHEME || '').trim().toUpperCase();
+      const isInterestDiscontinued = rateValue === 0 && schemeName !== 'RRGZI' && schemeName !== 'RGITQ';
+      
+      if (isInterestDiscontinued) {
+        discontinuedAccounts.push(a);
+      }
+      
+      return `
+      <tr class="${isInterestDiscontinued ? 'interest-discontinued-row' : ''}">
+        <td style="white-space: normal; min-width: 180px;">
+          <b>${a.SCHEME}</b>
+          ${isInterestDiscontinued ? '<br><span class="interest-disc-chip">⚠️ Interest Discontinued</span>' : ''}
+          <br><span style="color:var(--text-muted); font-size:11px;">${a.ACCOUNT_NO}</span>
+        </td>
         <td>${fAmt(a.OUTSTANDING_LOAN)}</td>
-        <td><span style="background:#EEF4FF; padding:4px 12px; border-radius:30px; font-weight:600;">${a.FULL_RATE}%</span></td>
+        <td>
+          <span class="${isInterestDiscontinued ? 'rate-zero-badge' : 'rate-badge'}" style="background:#EEF4FF; padding:4px 12px; border-radius:30px; font-weight:600;">
+            ${a.FULL_RATE}%
+          </span>
+        </td>
         <td>${fAmt(a.MIN_BAL_NPA)}</td>
         <td>${fAmt(a.MIN_BAL_WL)}</td>
         <td style="color:var(--danger); font-weight:700;">${fAmt(a.NET_OVD)}</td>
       </tr>
-    `).join('');
+    `}).join('');
+    
+    // ========== Render Interest Discontinued Chips in Summary ==========
+    const discontinuedChipsContainer = document.getElementById('discontinued-chips');
+    if (discontinuedChipsContainer) {
+      if (discontinuedAccounts.length > 0) {
+        discontinuedChipsContainer.innerHTML = `
+          <div class="section-title" style="margin-top: 0; margin-bottom: 12px;">
+            <i class="material-icons-round">warning_amber</i> Interest Discontinued Accounts
+          </div>
+          <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 24px;">
+            ${discontinuedAccounts.map(a => `
+              <span class="interest-disc-chip-large">
+                ⚠️ ${a.SCHEME} - ${a.ACCOUNT_NO}
+              </span>
+            `).join('')}
+          </div>
+        `;
+        discontinuedChipsContainer.classList.remove('hidden');
+      } else {
+        discontinuedChipsContainer.classList.add('hidden');
+      }
+    }
     
     window.currentCustomer.name = m.CUSTOMER_NAME;
     window.currentCustomer.renewal = m.RENEWAL;
