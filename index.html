@@ -445,19 +445,6 @@
       white-space: nowrap;
     }
     
-    .interest-disc-chip-large {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: #FFF8E1;
-      color: #8B6914;
-      padding: 6px 14px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 600;
-      border: 1px solid #F5A623;
-    }
-    
     .rate-zero-badge {
       background: #FFF8E1 !important;
       color: #8B6914 !important;
@@ -471,7 +458,7 @@
       font-weight: 600;
     }
     
-    /* ----- Premium Table ----- */
+    /* Premium Table */
     .table-wrapper {
       width: 100%;
       overflow-x: auto;
@@ -553,6 +540,7 @@
       border: 1px solid var(--border-light);
       box-shadow: var(--shadow-sm);
       transition: var(--transition);
+      cursor: pointer;
     }
     .member-card:hover {
       box-shadow: var(--shadow-md);
@@ -568,8 +556,14 @@
     .member-name {
       font-size: 20px;
       font-weight: 700;
-      color: var(--text-primary);
+      color: var(--primary);
       letter-spacing: -0.3px;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .member-name:hover {
+      color: var(--primary-light);
+      text-decoration: underline;
     }
     .member-sub {
       font-size: 13px;
@@ -1071,10 +1065,6 @@
         <div class="stat-card"><div class="stat-header"><i class="material-icons-round">savings</i><div class="stat-label">Op. Balance</div></div><div class="stat-value" id="v-op"></div></div>
         <div class="stat-card"><div class="stat-header"><i class="material-icons-round">autorenew</i><div class="stat-label">Renewal</div></div><div class="stat-value" id="v-renewal" style="font-size:20px;"></div></div>
       </div>
-      
-      <!-- Interest Discontinued Chips Section -->
-      <div id="discontinued-chips" class="hidden"></div>
-      
       <div class="section-title"><i class="material-icons-round">contacts</i> Contact Information</div>
       <div class="grid-summary" id="contact-grid"></div>
       <div class="section-title"><i class="material-icons-round">receipt_long</i> Loan Portfolio Details</div>
@@ -1346,12 +1336,17 @@
   const STORAGE_KEYS = {
     CUSTOMERS: 'crm_customers',
     METRICS: 'crm_metrics_',
-    GROUPS: 'crm_groups_'
+    GROUPS: 'crm_groups_',
+    GROUP_CIF_MAP: 'crm_group_cif_map_'  // New: maps group member names to CIF IDs
   };
 
   function cacheCustomerList(list) {
     try {
       localStorage.setItem(STORAGE_KEYS.CUSTOMERS, JSON.stringify(list));
+      // Also cache CIF-to-name mapping for group navigation
+      const cifMap = {};
+      list.forEach(c => { cifMap[c.name] = c.id; });
+      localStorage.setItem('crm_name_to_cif', JSON.stringify(cifMap));
       console.log('Customer list cached');
     } catch (e) { console.warn('Cache full'); }
   }
@@ -1359,6 +1354,13 @@
   function getCachedCustomerList() {
     const data = localStorage.getItem(STORAGE_KEYS.CUSTOMERS);
     return data ? JSON.parse(data) : [];
+  }
+
+  function getCifByName(name) {
+    try {
+      const map = JSON.parse(localStorage.getItem('crm_name_to_cif') || '{}');
+      return map[name] || null;
+    } catch(e) { return null; }
   }
 
   function cacheMetrics(cifId, data) {
@@ -1538,17 +1540,11 @@
     document.getElementById('v-days').innerHTML = m.MAX_OVD_DAYS;
     document.getElementById('v-renewal').innerHTML = m.RENEWAL;
     
-    // ========== Collect Interest Discontinued Accounts ==========
-    const discontinuedAccounts = [];
-    
+    // ========== Render Loan Portfolio Table with Interest Discontinued Highlighting ==========
     document.querySelector("#tbl-loan tbody").innerHTML = m.accounts.map(a => {
       const rateValue = parseFloat(a.FULL_RATE) || 0;
       const schemeName = (a.SCHEME || '').trim().toUpperCase();
       const isInterestDiscontinued = rateValue === 0 && schemeName !== 'RRGZI' && schemeName !== 'RGITQ';
-      
-      if (isInterestDiscontinued) {
-        discontinuedAccounts.push(a);
-      }
       
       return `
       <tr class="${isInterestDiscontinued ? 'interest-discontinued-row' : ''}">
@@ -1568,28 +1564,6 @@
         <td style="color:var(--danger); font-weight:700;">${fAmt(a.NET_OVD)}</td>
       </tr>
     `}).join('');
-    
-    // ========== Render Interest Discontinued Chips in Summary ==========
-    const discontinuedChipsContainer = document.getElementById('discontinued-chips');
-    if (discontinuedChipsContainer) {
-      if (discontinuedAccounts.length > 0) {
-        discontinuedChipsContainer.innerHTML = `
-          <div class="section-title" style="margin-top: 0; margin-bottom: 12px;">
-            <i class="material-icons-round">warning_amber</i> Interest Discontinued Accounts
-          </div>
-          <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 24px;">
-            ${discontinuedAccounts.map(a => `
-              <span class="interest-disc-chip-large">
-                ⚠️ ${a.SCHEME} - ${a.ACCOUNT_NO}
-              </span>
-            `).join('')}
-          </div>
-        `;
-        discontinuedChipsContainer.classList.remove('hidden');
-      } else {
-        discontinuedChipsContainer.classList.add('hidden');
-      }
-    }
     
     window.currentCustomer.name = m.CUSTOMER_NAME;
     window.currentCustomer.renewal = m.RENEWAL;
@@ -1764,8 +1738,38 @@
     </div>`;
     
     d.units.forEach(u => {
+      // Check if this unit has any interest discontinued accounts
+      // We need to load metrics for each member - use cached if available
+      let discontinuedChipsHTML = '';
+      const memberCifId = getCifByName(u.name);
+      
+      if (memberCifId) {
+        const memberMetrics = getCachedMetrics(memberCifId);
+        if (memberMetrics && memberMetrics.accounts) {
+          const discontinuedAccounts = memberMetrics.accounts.filter(a => {
+            const rateValue = parseFloat(a.FULL_RATE) || 0;
+            const schemeName = (a.SCHEME || '').trim().toUpperCase();
+            return rateValue === 0 && schemeName !== 'RRGZI' && schemeName !== 'RGITQ';
+          });
+          
+          if (discontinuedAccounts.length > 0) {
+            discontinuedChipsHTML = `
+              <div style="margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--border-light);">
+                <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                  ${discontinuedAccounts.map(a => `
+                    <span class="interest-disc-chip" style="font-size: 11px; padding: 4px 10px;">
+                      ⚠️ ${a.SCHEME}
+                    </span>
+                  `).join('')}
+                </div>
+              </div>
+            `;
+          }
+        }
+      }
+      
       html += `
-        <div class="member-card">
+        <div class="member-card" onclick="navigateToMember('${u.name.replace(/'/g, "\\'")}')">
           <div class="member-header">
             <div>
               <div class="member-name">${u.name}</div>
@@ -1781,11 +1785,47 @@
             <div class="metric-item"><span class="metric-label">Min NPA Saver</span><span class="metric-value">${fAmt(u.minNpa)}</span></div>
             <div class="metric-item"><span class="metric-label">Min WL Saver</span><span class="metric-value">${fAmt(u.minWl)}</span></div>
           </div>
+          ${discontinuedChipsHTML}
         </div>
       `;
     });
     
     document.getElementById('group-content').innerHTML = html;
+  }
+
+  // ========== NAVIGATE TO MEMBER FROM GROUP VIEW ==========
+  function navigateToMember(memberName) {
+    // First try to find CIF from cached customer list
+    let cifId = getCifByName(memberName);
+    
+    if (cifId) {
+      // Found in cache, navigate directly
+      currentCIF = cifId;
+      navTo('detail');
+      return;
+    }
+    
+    // If not in cache, try to fetch from server
+    if (navigator.onLine) {
+      toggleLoader(true);
+      callBackend('customers').then(list => {
+        cacheCustomerList(list); // Refresh cache
+        const found = list.find(c => c.name === memberName);
+        toggleLoader(false);
+        if (found) {
+          currentCIF = found.id;
+          navTo('detail');
+        } else {
+          alert('Could not find customer: ' + memberName);
+        }
+      }).catch(err => {
+        toggleLoader(false);
+        console.error('Failed to load customers for member navigation', err);
+        alert('Failed to navigate to customer. Please try again.');
+      });
+    } else {
+      alert('You are offline. Unable to navigate to this customer.');
+    }
   }
 
   // ========== INSIGHTS ==========
