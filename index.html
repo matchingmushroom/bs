@@ -1802,20 +1802,20 @@
     
     d.units.forEach(u => {
       // Check if this unit has any interest discontinued accounts
-      // We need to load metrics for each member - use cached if available
       let discontinuedChipsHTML = '';
       const memberCifId = getCifByName(u.name);
       
       if (memberCifId) {
         const memberMetrics = getCachedMetrics(memberCifId);
         if (memberMetrics && memberMetrics.accounts) {
-          const discontinuedAccounts = memberMetrics.accounts.filter(a => {
+          const hasDiscontinued = memberMetrics.accounts.some(a => {
             const rateValue = parseFloat(a.FULL_RATE) || 0;
             const schemeName = (a.SCHEME || '').trim().toUpperCase();
+            const netOvd = parseFloat(a.NET_OVD) || 0;
             return rateValue === 0 && schemeName !== 'RRGZI' && schemeName !== 'RGITQ' && Math.abs(netOvd) > 0.0001;
           });
           
-          if (discontinuedAccounts.length > 0) {
+          if (hasDiscontinued) {
             discontinuedChipsHTML = `
               <div style="margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--border-light);">
                 <div style="display: flex; flex-wrap: wrap; gap: 8px;">
