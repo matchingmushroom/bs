@@ -1544,7 +1544,8 @@
     document.querySelector("#tbl-loan tbody").innerHTML = m.accounts.map(a => {
       const rateValue = parseFloat(a.FULL_RATE) || 0;
       const schemeName = (a.SCHEME || '').trim().toUpperCase();
-      const isInterestDiscontinued = rateValue === 0 && schemeName !== 'RRGZI' && schemeName !== 'RGITQ';
+      const netOvd = parseFloat(a.NET_OVD) || 0;
+      const isInterestDiscontinued = rateValue === 0 && schemeName !== 'RRGZI' && schemeName !== 'RGITQ' && Math.abs(netOvd) > 0.0001;
       
       return `
       <tr class="${isInterestDiscontinued ? 'interest-discontinued-row' : ''}">
@@ -1811,7 +1812,7 @@
           const discontinuedAccounts = memberMetrics.accounts.filter(a => {
             const rateValue = parseFloat(a.FULL_RATE) || 0;
             const schemeName = (a.SCHEME || '').trim().toUpperCase();
-            return rateValue === 0 && schemeName !== 'RRGZI' && schemeName !== 'RGITQ';
+            return rateValue === 0 && schemeName !== 'RRGZI' && schemeName !== 'RGITQ' && Math.abs(netOvd) > 0.0001;
           });
           
           if (discontinuedAccounts.length > 0) {
