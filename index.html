@@ -1545,7 +1545,7 @@
       const rateValue = parseFloat(a.FULL_RATE) || 0;
       const schemeName = (a.SCHEME || '').trim().toUpperCase();
       const netOvd = parseFloat(a.NET_OVD) || 0;
-      const isInterestDiscontinued = rateValue === 0 && schemeName !== 'RRGZI' && schemeName !== 'RGITQ' && Math.abs(netOvd) > 0.0001;
+      const isInterestDiscontinued = rateValue === 0 && schemeName !== 'RRGZI' && schemeName !== 'ODPBQ' && schemeName !== 'RGITQ' && schemeName !== 'NEEOD' && Math.abs(netOvd) > 0.0001;
       
       return `
       <tr class="${isInterestDiscontinued ? 'interest-discontinued-row' : ''}">
@@ -1812,7 +1812,7 @@
             const rateValue = parseFloat(a.FULL_RATE) || 0;
             const schemeName = (a.SCHEME || '').trim().toUpperCase();
             const netOvd = parseFloat(a.NET_OVD) || 0;
-            return rateValue === 0 && schemeName !== 'RRGZI' && schemeName !== 'RGITQ' && Math.abs(netOvd) > 0.0001;
+            const isInterestDiscontinued = rateValue === 0 && schemeName !== 'RRGZI' && schemeName !== 'ODPBQ' && schemeName !== 'RGITQ' && schemeName !== 'NEEOD' && Math.abs(netOvd) > 0.0001;
           });
           
           if (hasDiscontinued) {
