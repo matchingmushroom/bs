@@ -444,6 +444,11 @@
       margin-top: 4px;
       white-space: nowrap;
     }
+
+    .disc-chips-container {
+      display: block !important;
+      visibility: visible !important;
+    }
     
     .rate-zero-badge {
       background: #FFF8E1 !important;
@@ -1828,55 +1833,31 @@
     // Load discontinued status for each member
     d.units.forEach(u => loadMemberDiscStatus(u.name));
   }
+
+    
   async function loadMemberDiscStatus(memberName) {
     const el = document.getElementById('disc-' + memberName.replace(/[^a-zA-Z0-9]/g, '_'));
-    console.log('loadMemberDiscStatus for:', memberName, 'el found:', !!el);
     if (!el) return;
     
     let cifId = getCifByName(memberName);
-    console.log('cifId from cache:', cifId);
-    
     if (!cifId && navigator.onLine) {
       try {
-        console.log('Fetching customers list...');
         const list = await callBackend('customers');
         cacheCustomerList(list);
         cifId = getCifByName(memberName);
-        console.log('cifId after fetch:', cifId);
-      } catch(e) {
-        console.error('Error fetching customers:', e);
-      }
+      } catch(e) {}
     }
-    if (!cifId) {
-      console.log('No CIF found for:', memberName);
-      return;
-    }
+    if (!cifId) return;
     
     let metrics = getCachedMetrics(cifId);
-    console.log('metrics from cache:', !!metrics);
-    
     if (!metrics && navigator.onLine) {
       try {
-        console.log('Fetching metrics for cifId:', cifId);
         metrics = await callBackend('metrics', { cifId: cifId });
-        if (metrics) {
-          cacheMetrics(cifId, metrics);
-          console.log('metrics fetched, accounts:', metrics.accounts?.length);
-        }
-      } catch(e) {
-        console.error('Error fetching metrics:', e);
-      }
+        if (metrics) cacheMetrics(cifId, metrics);
+      } catch(e) {}
     }
     
     if (metrics && metrics.accounts) {
-      metrics.accounts.forEach(a => {
-        const rate = parseFloat(a.FULL_RATE) || 0;
-        const scheme = (a.SCHEME || '').trim().toUpperCase();
-        const netOvd = parseFloat(a.NET_OVD) || 0;
-        const isDisc = rate === 0 && scheme !== 'RRGZI' && scheme !== 'RGITQ' && Math.abs(netOvd) > 0.0001;
-        console.log('Account:', a.ACCOUNT_NO, 'Scheme:', scheme, 'Rate:', rate, 'NetOvd:', netOvd, 'IsDisc:', isDisc);
-      });
-      
       const hasDisc = metrics.accounts.some(a => {
         const rate = parseFloat(a.FULL_RATE) || 0;
         const scheme = (a.SCHEME || '').trim().toUpperCase();
@@ -1884,14 +1865,11 @@
         return rate === 0 && scheme !== 'RRGZI' && scheme !== 'RGITQ' && Math.abs(netOvd) > 0.0001;
       });
       
-      console.log('hasDisc:', hasDisc);
-      
       if (hasDisc) {
         el.innerHTML = `
-          <div style="margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--border-light);">
-            <span class="interest-disc-chip" style="font-size: 11px; padding: 4px 10px;">⚠️ Interest Discontinued</span>
+          <div style="margin-top:12px; padding-top:12px; border-top:1px dashed #E2E8F0; display:block !important; visibility:visible !important;">
+            <span style="display:inline-block; background:#F5A623; color:#1A1A1A; padding:6px 12px; border-radius:20px; font-size:12px; font-weight:700;">⚠️ Interest Discontinued</span>
           </div>`;
-        console.log('Chip inserted for:', memberName);
       }
     }
   }
